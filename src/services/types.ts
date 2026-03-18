@@ -1,3 +1,5 @@
+import type { WrTeFeatureRow } from '../features/types/featureRow.js';
+import type { WrTeFeatureSourceInput } from '../features/types/sourceTypes.js';
 import type { NormalizedEvent } from '../ingestion/types/normalizedEvent.js';
 import type { RawEvent } from '../ingestion/types/rawEvent.js';
 import type { ScenarioRunResult } from '../models/scenarios/runScenario.js';
@@ -12,6 +14,16 @@ export interface IngestRawEventsOutput {
 export interface BuildScenariosOutput {
   normalizedEvents: NormalizedEvent[];
   scenarios: ProjectionScenario[];
+}
+
+export interface BuildFeatureRowOutput {
+  source: WrTeFeatureSourceInput;
+  row: WrTeFeatureRow;
+}
+
+export interface BuildFeatureBatchOutput {
+  sources: WrTeFeatureSourceInput[];
+  rows: WrTeFeatureRow[];
 }
 
 export interface ProjectScenarioOutput {
@@ -33,6 +45,8 @@ export interface ProjectFromRawEventsOutput {
 
 export type IngestRawEventsResult = ServiceResult<IngestRawEventsOutput>;
 export type BuildScenariosResult = ServiceResult<BuildScenariosOutput>;
+export type BuildFeatureRowResult = ServiceResult<BuildFeatureRowOutput>;
+export type BuildFeatureBatchResult = ServiceResult<BuildFeatureBatchOutput>;
 export type ProjectScenarioResult = ServiceResult<ProjectScenarioOutput>;
 export type ProjectBatchResult = ServiceResult<ProjectBatchOutput>;
 export type ProjectFromRawEventsResult = ServiceResult<ProjectFromRawEventsOutput>;
