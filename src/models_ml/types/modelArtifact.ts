@@ -1,5 +1,6 @@
 import type { GroupedMetrics } from '../../datasets/types/metrics.js';
 import type { WrTeBaselineModelConfig } from './modelConfig.js';
+import type { WrTeBaselineUncertaintyArtifact } from './uncertainty.js';
 
 export interface NumericFeatureSpec {
   column: string;
@@ -74,4 +75,5 @@ export interface WrTeBaselineModelArtifact {
   };
   featureImportance: FeatureImportanceEntry[];
   evaluationSummary?: TrainingEvaluationSummary;
+  uncertaintyMetadata?: WrTeBaselineUncertaintyArtifact;
 }

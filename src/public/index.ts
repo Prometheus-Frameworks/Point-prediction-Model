@@ -9,6 +9,9 @@ export { projectScenario } from '../services/projectScenarioService.js';
 export { runBacktestService } from '../services/runBacktestService.js';
 export { trainBaselineModelService } from '../services/trainBaselineModelService.js';
 export { predictBaselineModelService } from '../services/predictBaselineModelService.js';
+export { predictWithIntervalsService } from '../services/predictWithIntervalsService.js';
+export { evaluateCalibrationService } from '../services/evaluateCalibrationService.js';
+export { evaluateSubgroupStabilityService } from '../services/evaluateSubgroupStabilityService.js';
 export { runModelBacktestService } from '../services/runModelBacktestService.js';
 export type {
   BuildFeatureBatchOutput,
@@ -35,6 +38,10 @@ export type {
   PredictBaselineModelResult,
   RunModelBacktestOutput,
   RunModelBacktestResult,
+  EvaluateCalibrationOutput,
+  EvaluateCalibrationResult,
+  EvaluateSubgroupStabilityOutput,
+  EvaluateSubgroupStabilityResult,
   ServiceError,
   ServiceResult,
   ServiceWarning,
@@ -72,9 +79,28 @@ export { prepareTrainingMatrix, vectorizeWrTeFeatureRow } from '../models_ml/tra
 export { trainWrTeBaselineModel } from '../models_ml/training/trainWrTeBaselineModel.js';
 export { loadModelArtifact } from '../models_ml/inference/loadModelArtifact.js';
 export { predictWrTeBaselineModel, predictWrTeBaselineModelValue } from '../models_ml/inference/predictWrTeBaselineModel.js';
+export { bucketPredictionContext } from '../models_ml/uncertainty/bucketPredictionContext.js';
+export { estimateResidualBands } from '../models_ml/uncertainty/estimateResidualBands.js';
+export { assignPredictionInterval } from '../models_ml/uncertainty/assignPredictionInterval.js';
+export { buildCalibrationTable } from '../models_ml/calibration/buildCalibrationTable.js';
+export { buildReliabilityReport } from '../models_ml/calibration/buildReliabilityReport.js';
+export { evaluateCalibration } from '../models_ml/calibration/evaluateCalibration.js';
+export { subgroupDefinitions } from '../models_ml/subgroup/subgroupDefinitions.js';
+export { evaluateSubgroupStability } from '../models_ml/subgroup/evaluateSubgroupStability.js';
 export { evaluateModelAgainstBenchmarks } from '../models_ml/evaluation/evaluateModelAgainstBenchmarks.js';
 export { buildPredictionComparison } from '../models_ml/evaluation/buildPredictionComparison.js';
 export type { WrTeBaselineModelConfig } from '../models_ml/types/modelConfig.js';
 export { defaultWrTeBaselineModelConfig } from '../models_ml/types/modelConfig.js';
 export type { WrTeBaselineModelArtifact, ModelSchema, ModelFeatureSpec, FeatureImportanceEntry } from '../models_ml/types/modelArtifact.js';
 export type { WrTeBaselinePrediction, ModelPredictionSet, PredictionComparisonRow } from '../models_ml/types/prediction.js';
+export type {
+  PredictionContextBucket,
+  ResidualBucketDefinition,
+  WrTeBaselineUncertaintyArtifact,
+  IntervalPrediction,
+  CalibrationBucketRow,
+  CalibrationReport,
+  SubgroupFamilyDefinition,
+  SubgroupStabilityRow,
+  SubgroupStabilityReport,
+} from '../models_ml/types/uncertainty.js';

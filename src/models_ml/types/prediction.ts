@@ -1,7 +1,8 @@
 import type { GroupedMetrics, PredictionRecord } from '../../datasets/types/metrics.js';
 import type { WrTeFeatureRow } from '../../features/types/featureRow.js';
+import type { CalibrationReport, IntervalPrediction, SubgroupStabilityReport } from './uncertainty.js';
 
-export interface WrTeBaselinePrediction {
+export interface WrTeBaselinePrediction extends IntervalPrediction {
   rowId: string;
   playerId: string;
   playerName: string;
@@ -24,4 +25,12 @@ export interface PredictionComparisonRow {
   sampleSize: number;
   maeDeltaVsBaselineMean: number | null;
   rmseDeltaVsBaselineMean: number | null;
+}
+
+export interface CalibrationEvaluationResult {
+  report: CalibrationReport;
+}
+
+export interface SubgroupStabilityEvaluationResult {
+  report: SubgroupStabilityReport;
 }
