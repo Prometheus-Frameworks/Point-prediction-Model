@@ -1,8 +1,15 @@
+import { writeFile } from 'node:fs/promises';
 import path from 'node:path';
+import { formatIngestSummaryTable } from './cli/formatIngestSummaryTable.js';
 import { formatSummaryTable } from './cli/formatSummaryTable.js';
 import { parseCliArgs } from './cli/parseCliArgs.js';
+import { buildScenariosFromEvents } from './ingestion/build/buildScenarioFromEvent.js';
+import { normalizeEvents } from './ingestion/normalize/normalizeEvent.js';
+import type { NormalizedEvent } from './ingestion/types/normalizedEvent.js';
+import { dedupeEvents } from './ingestion/quality/dedupeEvents.js';
 import { exportCsv } from './io/exportCsv.js';
 import { exportJson } from './io/exportJson.js';
+import { loadRawEventFile } from './io/loadRawEventFile.js';
 import { loadScenarioFile } from './io/loadScenarioFile.js';
 import { getDefaultScenarios, getScenarioById, scenarioRegistry } from './models/scenarios/registry.js';
 import { runScenario, type ScenarioRunResult } from './models/scenarios/runScenario.js';
@@ -36,11 +43,15 @@ const getScenariosToRun = async () => {
     return { label: `seeded scenario '${command.scenarioId}'`, scenarios: [scenario], exportFormat: command.exportFormat };
   }
 
-  return {
-    label: `scenario file ${command.filePath}`,
-    scenarios: await loadScenarioFile(command.filePath),
-    exportFormat: command.exportFormat,
-  };
+  if (command.mode === 'file') {
+    return {
+      label: `scenario file ${command.filePath}`,
+      scenarios: await loadScenarioFile(command.filePath),
+      exportFormat: command.exportFormat,
+    };
+  }
+
+  return null;
 };
 
 const printDetailedResult = (result: ScenarioRunResult) => {
@@ -73,9 +84,47 @@ const maybeExportResults = async (
   console.log(`\nExported ${results.length} result(s) to ${outputPath}`);
 };
 
+const exportIngestArtifacts = async (events: NormalizedEvent[], scenarios: ProjectionScenario[]) => {
+  const normalizedEventsPath = path.resolve('normalized-events.json');
+  const normalizedScenariosPath = path.resolve('normalized-scenarios.json');
+
+  await writeFile(normalizedEventsPath, JSON.stringify(events, null, 2), 'utf8');
+  await writeFile(normalizedScenariosPath, JSON.stringify(scenarios, null, 2), 'utf8');
+
+  console.log(`\nExported ${events.length} normalized event(s) to ${normalizedEventsPath}`);
+  console.log(`Exported ${scenarios.length} normalized scenario(s) to ${normalizedScenariosPath}`);
+};
+
+const runIngestMode = async (filePath: string, exportFormat?: 'json') => {
+  const rawEvents = await loadRawEventFile(filePath);
+  const normalizedEvents = dedupeEvents(normalizeEvents(rawEvents));
+  const scenarios = buildScenariosFromEvents(normalizedEvents);
+
+  console.log(`\nIngested ${rawEvents.length} raw event(s) from ${filePath}.`);
+  console.log(`Collapsed to ${normalizedEvents.length} normalized event(s) after deduplication.\n`);
+  console.log(formatIngestSummaryTable(normalizedEvents));
+
+  if (exportFormat === 'json') {
+    await exportIngestArtifacts(normalizedEvents, scenarios);
+  }
+};
+
 const main = async () => {
+  const command = parseCliArgs(process.argv.slice(2));
+
+  if (command.mode === 'ingest') {
+    await runIngestMode(command.filePath, command.exportFormat);
+    return;
+  }
+
   printAvailableScenarios();
-  const { label, scenarios, exportFormat } = await getScenariosToRun();
+  const scenarioSelection = await getScenariosToRun();
+
+  if (!scenarioSelection) {
+    throw new Error('No scenario selection could be resolved.');
+  }
+
+  const { label, scenarios, exportFormat } = scenarioSelection;
 
   if (scenarios.length === 0) {
     throw new Error(`No scenarios found for ${label}.`);

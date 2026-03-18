@@ -16,4 +16,15 @@ describe('CLI integration', () => {
     expect(output).toContain('sample-bowers-vacated-targets');
     expect(output).toContain('sample-wr-new-signing');
   });
+
+  it('prints a normalized ingest summary table for raw event runs', () => {
+    const output = execFileSync(tsxPath, ['src/index.ts', 'ingest', './src/ingestion/examples/raw-events.sample.json'], {
+      cwd,
+      encoding: 'utf8',
+    });
+
+    expect(output).toContain('Collapsed to 4 normalized event(s)');
+    expect(output).toContain('PLAYER_TRADE');
+    expect(output).toContain('normalized-raw-trade-1');
+  });
 });

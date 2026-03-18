@@ -2,7 +2,8 @@ export type CliCommand =
   | { mode: 'default'; exportFormat?: 'json' | 'csv' }
   | { mode: 'all'; exportFormat?: 'json' | 'csv' }
   | { mode: 'scenario'; scenarioId: string; exportFormat?: 'json' | 'csv' }
-  | { mode: 'file'; filePath: string; exportFormat?: 'json' | 'csv' };
+  | { mode: 'file'; filePath: string; exportFormat?: 'json' | 'csv' }
+  | { mode: 'ingest'; filePath: string; exportFormat?: 'json' };
 
 const isExportFormat = (value: string): value is 'json' | 'csv' => value === 'json' || value === 'csv';
 
@@ -43,6 +44,18 @@ export const parseCliArgs = (argv: string[]): CliCommand => {
     }
 
     return { mode: 'file', filePath: args[1], exportFormat };
+  }
+
+  if (args[0] === 'ingest') {
+    if (!args[1]) {
+      throw new Error('Missing file path. Usage: npm run dev -- ingest <path-to-json-or-csv>');
+    }
+
+    if (exportFormat && exportFormat !== 'json') {
+      throw new Error('Ingest mode only supports --export json.');
+    }
+
+    return { mode: 'ingest', filePath: args[1], exportFormat: exportFormat as 'json' | undefined };
   }
 
   return { mode: 'scenario', scenarioId: args[0], exportFormat };
