@@ -13,6 +13,7 @@ import type { WrTeBaselinePrediction, PredictionComparisonRow } from '../models_
 import type { CalibrationReport, SubgroupStabilityReport, WrTeBaselineUncertaintyArtifact } from '../models_ml/types/uncertainty.js';
 import type { TrainWrTeBaselineModelResult } from '../models_ml/training/trainWrTeBaselineModel.js';
 import type { ProjectionScenario } from '../types/scenario.js';
+import type { FusedProjection } from '../fusion/types/fusedProjection.js';
 import type { ServiceError, ServiceResult, ServiceWarning } from './result.js';
 
 export interface IngestRawEventsOutput {
@@ -99,6 +100,22 @@ export interface ScoreRegressionCandidatesEnvelope extends ScoreRegressionCandid
   inputs?: ProjectionDiagnosticInput[];
 }
 
+export interface RunFusedProjectionOutput {
+  row: WrTeFeatureRow;
+  scenario: ProjectionScenario;
+  scenarioResult: ScenarioRunResult;
+  baselinePrediction: WrTeBaselinePrediction;
+  fusedProjection: FusedProjection;
+}
+
+export interface RunFusedBatchOutput {
+  rows: WrTeFeatureRow[];
+  scenarios: ProjectionScenario[];
+  scenarioResults: ScenarioRunResult[];
+  baselinePredictions: WrTeBaselinePrediction[];
+  fusedProjections: FusedProjection[];
+}
+
 export type IngestRawEventsResult = ServiceResult<IngestRawEventsOutput>;
 export type BuildScenariosResult = ServiceResult<BuildScenariosOutput>;
 export type BuildFeatureRowResult = ServiceResult<BuildFeatureRowOutput>;
@@ -113,6 +130,8 @@ export type PredictBaselineModelResult = ServiceResult<PredictBaselineModelOutpu
 export type RunModelBacktestResult = ServiceResult<RunModelBacktestOutput>;
 export type RunProjectionDiagnosticsResult = ServiceResult<RunProjectionDiagnosticsEnvelope>;
 export type ScoreRegressionCandidatesResult = ServiceResult<ScoreRegressionCandidatesEnvelope>;
+export type RunFusedProjectionResult = ServiceResult<RunFusedProjectionOutput>;
+export type RunFusedBatchResult = ServiceResult<RunFusedBatchOutput>;
 
 export type { ServiceError, ServiceResult, ServiceWarning };
 

@@ -10,6 +10,8 @@ export { runBacktestService } from '../services/runBacktestService.js';
 export { trainBaselineModelService } from '../services/trainBaselineModelService.js';
 export { predictBaselineModelService } from '../services/predictBaselineModelService.js';
 export { predictWithIntervalsService } from '../services/predictWithIntervalsService.js';
+export { runFusedProjectionService } from '../services/runFusedProjectionService.js';
+export { runFusedBatchService } from '../services/runFusedBatchService.js';
 export { evaluateCalibrationService } from '../services/evaluateCalibrationService.js';
 export { evaluateSubgroupStabilityService } from '../services/evaluateSubgroupStabilityService.js';
 export { runProjectionDiagnosticsService } from '../services/runProjectionDiagnosticsService.js';
@@ -48,12 +50,17 @@ export type {
   RunProjectionDiagnosticsResult,
   ScoreRegressionCandidatesEnvelope,
   ScoreRegressionCandidatesResult,
+  RunFusedProjectionOutput,
+  RunFusedProjectionResult,
+  RunFusedBatchOutput,
+  RunFusedBatchResult,
   ServiceError,
   ServiceResult,
   ServiceWarning,
 } from '../services/types.js';
 export type { RawEvent } from '../ingestion/types/rawEvent.js';
 export type { NormalizedEvent } from '../ingestion/types/normalizedEvent.js';
+export { runScenario } from '../models/scenarios/runScenario.js';
 export type { ScenarioRunResult } from '../models/scenarios/runScenario.js';
 export type { ProjectionScenario } from '../types/scenario.js';
 
@@ -136,3 +143,14 @@ export type {
   RunProjectionDiagnosticsOutput,
   ScoreRegressionCandidatesOutput,
 } from '../diagnostics/types/diagnosticOutput.js';
+
+export { fuseScenarioWithModel } from '../fusion/core/fuseScenarioWithModel.js';
+export { recomputeIntervalsAfterFusion } from '../fusion/core/recomputeIntervalsAfterFusion.js';
+export { recomputeDiagnosticsAfterFusion } from '../fusion/core/recomputeDiagnosticsAfterFusion.js';
+export { applyAdditiveDelta } from '../fusion/policies/applyAdditiveDelta.js';
+export { applyWeightedFusion } from '../fusion/policies/applyWeightedFusion.js';
+export { applyBoundedFusion } from '../fusion/policies/applyBoundedFusion.js';
+export { sampleFusionRun } from '../fusion/examples/sampleFusionRun.js';
+export type { FusionPolicyName, FusionConfig, FusionPolicyInput, FusionPolicyResult } from '../fusion/types/fusionConfig.js';
+export { defaultFusionConfig } from '../fusion/types/fusionConfig.js';
+export type { FusedProjection, FusionConfidence, FusedProjectionDiagnostics } from '../fusion/types/fusedProjection.js';
