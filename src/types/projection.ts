@@ -1,5 +1,5 @@
+import type { ProjectionEvent, ProjectionEventType } from './event.js';
 import type { PlayerProfile } from './player.js';
-import type { ProjectionEvent } from './event.js';
 import type { TeamContext } from './team.js';
 
 export interface ProjectionBreakdown {
@@ -16,8 +16,12 @@ export interface ProjectionOutput {
   priorTeam: TeamContext;
   currentTeam: TeamContext;
   event?: ProjectionEvent;
+  eventType?: ProjectionEventType;
   baseline: ProjectionBreakdown;
   adjusted: ProjectionBreakdown;
+  delta: ProjectionBreakdown;
   deltaPprPointsPerGame: number;
+  confidenceScore: number;
+  confidenceBand: 'LOW' | 'MEDIUM' | 'HIGH';
   explanation: string[];
 }

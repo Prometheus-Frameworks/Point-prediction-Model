@@ -5,6 +5,7 @@ export interface PlayerProfile {
   name: string;
   position: Position;
   team: string;
+  sampleSizeGames: number;
   routesPerGame: number;
   targetsPerRouteRun: number;
   catchRate: number;
