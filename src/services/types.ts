@@ -8,6 +8,7 @@ import type { RawEvent } from '../ingestion/types/rawEvent.js';
 import type { ScenarioRunResult } from '../models/scenarios/runScenario.js';
 import type { WrTeBaselineModelArtifact } from '../models_ml/types/modelArtifact.js';
 import type { WrTeBaselinePrediction, PredictionComparisonRow } from '../models_ml/types/prediction.js';
+import type { CalibrationReport, SubgroupStabilityReport, WrTeBaselineUncertaintyArtifact } from '../models_ml/types/uncertainty.js';
 import type { TrainWrTeBaselineModelResult } from '../models_ml/training/trainWrTeBaselineModel.js';
 import type { ProjectionScenario } from '../types/scenario.js';
 import type { ServiceError, ServiceResult, ServiceWarning } from './result.js';
@@ -80,6 +81,16 @@ export interface RunModelBacktestOutput {
   }>;
 }
 
+export interface EvaluateCalibrationOutput {
+  uncertaintyArtifact: WrTeBaselineUncertaintyArtifact;
+  report: CalibrationReport;
+}
+
+export interface EvaluateSubgroupStabilityOutput {
+  uncertaintyArtifact: WrTeBaselineUncertaintyArtifact;
+  report: SubgroupStabilityReport;
+}
+
 export type IngestRawEventsResult = ServiceResult<IngestRawEventsOutput>;
 export type BuildScenariosResult = ServiceResult<BuildScenariosOutput>;
 export type BuildFeatureRowResult = ServiceResult<BuildFeatureRowOutput>;
@@ -94,3 +105,6 @@ export type PredictBaselineModelResult = ServiceResult<PredictBaselineModelOutpu
 export type RunModelBacktestResult = ServiceResult<RunModelBacktestOutput>;
 
 export type { ServiceError, ServiceResult, ServiceWarning };
+
+export type EvaluateCalibrationResult = ServiceResult<EvaluateCalibrationOutput>;
+export type EvaluateSubgroupStabilityResult = ServiceResult<EvaluateSubgroupStabilityOutput>;
