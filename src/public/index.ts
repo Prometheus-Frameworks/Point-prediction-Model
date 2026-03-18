@@ -7,6 +7,9 @@ export { projectBatch } from '../services/projectBatchService.js';
 export { projectFromRawEvents } from '../services/projectFromRawEventsService.js';
 export { projectScenario } from '../services/projectScenarioService.js';
 export { runBacktestService } from '../services/runBacktestService.js';
+export { trainBaselineModelService } from '../services/trainBaselineModelService.js';
+export { predictBaselineModelService } from '../services/predictBaselineModelService.js';
+export { runModelBacktestService } from '../services/runModelBacktestService.js';
 export type {
   BuildFeatureBatchOutput,
   BuildHistoricalDatasetOutput,
@@ -26,6 +29,12 @@ export type {
   ProjectScenarioResult,
   RunBacktestOutput,
   RunBacktestResult,
+  TrainBaselineModelOutput,
+  TrainBaselineModelResult,
+  PredictBaselineModelOutput,
+  PredictBaselineModelResult,
+  RunModelBacktestOutput,
+  RunModelBacktestResult,
   ServiceError,
   ServiceResult,
   ServiceWarning,
@@ -58,3 +67,14 @@ export { historicalSampleDataset } from '../datasets/examples/historicalSampleDa
 export type { HistoricalLabeledRowInput, HistoricalRowMetadata, WeeklyPprTarget, WrTeLabeledRow } from '../datasets/types/labeledRow.js';
 export type { BacktestReport, BacktestModelReport, EvaluationMetrics, GroupedMetrics, PredictionRecord, WindowEvaluation } from '../datasets/types/metrics.js';
 export type { RollingBacktestConfig, RollingBacktestWindow, SeasonWeek, SplitTimeWindow, TimeSeriesSplitConfig, TimeSeriesSplitResult } from '../datasets/types/split.js';
+
+export { prepareTrainingMatrix, vectorizeWrTeFeatureRow } from '../models_ml/training/prepareTrainingMatrix.js';
+export { trainWrTeBaselineModel } from '../models_ml/training/trainWrTeBaselineModel.js';
+export { loadModelArtifact } from '../models_ml/inference/loadModelArtifact.js';
+export { predictWrTeBaselineModel, predictWrTeBaselineModelValue } from '../models_ml/inference/predictWrTeBaselineModel.js';
+export { evaluateModelAgainstBenchmarks } from '../models_ml/evaluation/evaluateModelAgainstBenchmarks.js';
+export { buildPredictionComparison } from '../models_ml/evaluation/buildPredictionComparison.js';
+export type { WrTeBaselineModelConfig } from '../models_ml/types/modelConfig.js';
+export { defaultWrTeBaselineModelConfig } from '../models_ml/types/modelConfig.js';
+export type { WrTeBaselineModelArtifact, ModelSchema, ModelFeatureSpec, FeatureImportanceEntry } from '../models_ml/types/modelArtifact.js';
+export type { WrTeBaselinePrediction, ModelPredictionSet, PredictionComparisonRow } from '../models_ml/types/prediction.js';
