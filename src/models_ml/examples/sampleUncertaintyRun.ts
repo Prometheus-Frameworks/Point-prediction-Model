@@ -1,3 +1,4 @@
+import { mkdir, writeFile } from 'node:fs/promises';
 import path from 'node:path';
 import { historicalSampleDataset } from '../../datasets/examples/historicalSampleDataset.js';
 import { evaluateCalibrationService } from '../../services/evaluateCalibrationService.js';
@@ -6,6 +7,7 @@ import { predictWithIntervalsService } from '../../services/predictWithIntervals
 import { trainWrTeBaselineModel } from '../training/trainWrTeBaselineModel.js';
 
 const artifactPath = path.resolve('src/models_ml/artifacts/sample-wrte-baseline-model-with-uncertainty.json');
+const uncertaintyArtifactPath = path.resolve('src/models_ml/artifacts/sample-wrte-baseline-uncertainty.json');
 
 const run = async (): Promise<void> => {
   const trainRows = historicalSampleDataset.slice(0, 4);
@@ -55,8 +57,18 @@ const run = async (): Promise<void> => {
     throw new Error(subgroup.errors[0]?.message ?? 'Subgroup stability service failed.');
   }
 
+  const intervalReadyArtifact = {
+    ...trained.artifact,
+    uncertaintyMetadata: calibration.data.uncertaintyArtifact,
+  };
+
+  await mkdir(path.dirname(uncertaintyArtifactPath), { recursive: true });
+  await writeFile(artifactPath, `${JSON.stringify(intervalReadyArtifact, null, 2)}\n`, 'utf8');
+  await writeFile(uncertaintyArtifactPath, `${JSON.stringify(calibration.data.uncertaintyArtifact, null, 2)}\n`, 'utf8');
+
   console.log(JSON.stringify({
     artifactPath,
+    uncertaintyArtifactPath,
     uncertaintyArtifact: calibration.data.uncertaintyArtifact,
     calibration: calibration.data.report,
     subgroup: subgroup.data.report,

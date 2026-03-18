@@ -4,7 +4,7 @@
 
 Calibration reporting answers a simple question: when the baseline predicts a certain level of output, how closely does reality match that expectation?
 
-PR9 adds calibration reporting for the existing WR/TE baseline so that point predictions and interval bands can be audited instead of trusted blindly.
+PR10 adds calibration reporting for the existing WR/TE baseline so that point predictions and interval bands can be audited instead of trusted blindly.
 
 ## Calibration outputs
 
@@ -23,7 +23,7 @@ Reliability summaries also flag the worst bucket bias and note material under-co
 
 Subgroup stability reporting makes weaknesses visible instead of hiding them inside one overall error metric.
 
-PR9 evaluates at least the following subgroup families:
+PR10 evaluates at least the following subgroup families:
 
 - WR vs TE
 - rookie vs veteran
