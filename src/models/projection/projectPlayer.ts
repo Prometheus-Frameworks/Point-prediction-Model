@@ -1,11 +1,23 @@
-import { applyTradeAdjustment } from '../adjustments/tradeAdjustment.js';
 import { calculateBaselineProjection } from '../baseline/wrProjection.js';
-import type { ProjectionOutput } from '../../types/projection.js';
+import { calculateConfidenceScore } from '../adjustments/confidenceScore.js';
+import { dispatchEventAdjustment } from '../adjustments/dispatchEventAdjustment.js';
+import type { ProjectionOutput, ProjectionBreakdown } from '../../types/projection.js';
 import type { PlayerProfile } from '../../types/player.js';
 import type { TeamContext } from '../../types/team.js';
 import type { ProjectionEvent } from '../../types/event.js';
-import { buildTradeExplanation } from '../../utils/explain.js';
 import { roundTo } from '../../utils/math.js';
+
+const subtractBreakdowns = (
+  adjusted: ProjectionBreakdown,
+  baseline: ProjectionBreakdown,
+): ProjectionBreakdown => ({
+  targetsPerGame: roundTo(adjusted.targetsPerGame - baseline.targetsPerGame),
+  receptionsPerGame: roundTo(adjusted.receptionsPerGame - baseline.receptionsPerGame),
+  yardsPerGame: roundTo(adjusted.yardsPerGame - baseline.yardsPerGame),
+  tdsPerGame: roundTo(adjusted.tdsPerGame - baseline.tdsPerGame),
+  rushPointsPerGame: roundTo(adjusted.rushPointsPerGame - baseline.rushPointsPerGame),
+  pprPointsPerGame: roundTo(adjusted.pprPointsPerGame - baseline.pprPointsPerGame),
+});
 
 export const projectPlayer = (
   player: PlayerProfile,
@@ -14,34 +26,33 @@ export const projectPlayer = (
   event?: ProjectionEvent,
 ): ProjectionOutput => {
   const baseline = calculateBaselineProjection(player);
-
-  if (!event) {
-    return {
-      player,
-      priorTeam,
-      currentTeam,
-      baseline,
-      adjusted: baseline,
-      deltaPprPointsPerGame: 0,
-      explanation: ['No event applied.'],
-    };
-  }
-
-  const adjustedInputs = applyTradeAdjustment(player, priorTeam, currentTeam, event);
+  const adjustedInputs = dispatchEventAdjustment(player, priorTeam, currentTeam, event);
   const adjusted = calculateBaselineProjection({
     ...player,
     team: currentTeam.team,
     ...adjustedInputs,
   });
+  const delta = subtractBreakdowns(adjusted, baseline);
+  const confidence = event
+    ? calculateConfidenceScore(player, event, adjustedInputs.materiallyChangedVariables)
+    : { confidenceScore: 100, confidenceBand: 'HIGH' as const, factors: ['No event uncertainty applied.'] };
 
   return {
     player,
     priorTeam,
     currentTeam,
     event,
+    eventType: event?.type,
     baseline,
     adjusted,
-    deltaPprPointsPerGame: roundTo(adjusted.pprPointsPerGame - baseline.pprPointsPerGame),
-    explanation: buildTradeExplanation(priorTeam, currentTeam, adjustedInputs, baseline, adjusted),
+    delta,
+    deltaPprPointsPerGame: delta.pprPointsPerGame,
+    confidenceScore: confidence.confidenceScore,
+    confidenceBand: confidence.confidenceBand,
+    explanation: [
+      ...adjustedInputs.explanation,
+      `Baseline vs adjusted PPR/G: ${baseline.pprPointsPerGame} → ${adjusted.pprPointsPerGame} (${delta.pprPointsPerGame} delta).`,
+      ...confidence.factors,
+    ],
   };
 };

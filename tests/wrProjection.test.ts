@@ -9,6 +9,7 @@ describe('calculateBaselineProjection', () => {
       name: 'Test Receiver',
       position: 'WR',
       team: 'AAA',
+      sampleSizeGames: 17,
       routesPerGame: 30,
       targetsPerRouteRun: 0.25,
       catchRate: 0.7,

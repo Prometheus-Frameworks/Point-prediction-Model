@@ -1,28 +1,47 @@
-# Formulas
+# Formulas and Adjustment Logic
 
 ## Baseline pass-catcher projection
-The baseline model uses player-level usage and efficiency rates.
-
 - `targetsPerGame = routesPerGame * targetsPerRouteRun`
-- `receptions = targetsPerGame * catchRate`
-- `yards = targetsPerGame * yardsPerTarget`
-- `TDs = targetsPerGame * tdPerTarget`
-- `PPR points = receptions + yards * 0.1 + TDs * 6 + rushPointsPerGame`
+- `receptionsPerGame = targetsPerGame * catchRate`
+- `yardsPerGame = targetsPerGame * yardsPerTarget`
+- `tdsPerGame = targetsPerGame * tdPerTarget`
+- `pprPointsPerGame = receptionsPerGame + yardsPerGame * 0.1 + tdsPerGame * 6 + rushPointsPerGame`
 
-## Trade adjustment philosophy
-Trade events should change the inputs that drive fantasy scoring rather than directly adding or subtracting fantasy points.
+## Shared adjustment rule
+The engine changes the variables that feed the baseline formula, then recomputes projection output.
 
-### Inputs adjusted by team context
-- **Play volume + pass rate** adjust `routesPerGame` through a combined volume multiplier.
-- **Target competition** adjusts `targetsPerRouteRun`.
-- **Quarterback efficiency** adjusts both `catchRate` and `yardsPerTarget`.
-- **Passing touchdown environment** adjusts `tdPerTarget`.
+## Event-specific logic
+### `PLAYER_TRADE`
+- Reuses PR1-style team-context multipliers.
+- `routesPerGame` responds to play volume and pass rate.
+- `targetsPerRouteRun` responds to target competition.
+- `catchRate` and `yardsPerTarget` respond to QB efficiency.
+- `tdPerTarget` responds to passing touchdown environment.
 
-## Bounded multiplier framework
-Each adjustment is derived from the relative change between the old and new team indices.
+### `TEAMMATE_INJURY`
+- Mostly boosts `targetsPerRouteRun`.
+- Gives only a slight `routesPerGame` increase.
+- Adds a small `tdPerTarget` boost for vacated scoring chances.
 
-`rawDelta = (newIndex - oldIndex) / oldIndex`
+### `PLAYER_SIGNING`
+- Mostly reduces `targetsPerRouteRun` through extra competition.
+- Slightly reduces routes and touchdown share.
+- Allows only a very small efficiency movement.
 
-`multiplier = clamp(1 + rawDelta * sensitivity, 1 - cap, 1 + cap)`
+### `ROOKIE_ADDED`
+- Applies a modest competition penalty.
+- Keeps route and efficiency changes small.
+- Deliberately preserves more uncertainty than cleaner event types.
 
-This keeps the MVP deterministic and prevents unrealistic swings from any single team-context dimension.
+## Confidence scoring rules
+The confidence score is a deterministic weighted formula:
+- sample size contribution from `player.sampleSizeGames`
+- event clarity contribution from `event.clarity`
+- event-type reliability bonus
+- penalty for each materially changed variable beyond the first two
+- penalty for event severity extremes, which imply more volatility
+
+The final value is clamped to `0-100` and mapped to:
+- `LOW` for scores below `55`
+- `MEDIUM` for scores `55-74`
+- `HIGH` for scores `75+`

@@ -1,27 +1,32 @@
 # Model Overview
 
 ## Purpose
-This MVP projects fantasy points per game for pass-catchers (wide receivers and tight ends only) and reacts to a single roster event type: `PLAYER_TRADE`.
+This project projects fantasy points per game for WR/TE pass-catchers and applies deterministic scenario adjustments for trades, injuries, signings, and rookie additions.
 
 ## Architecture
-- `src/types/`: Canonical interfaces for players, teams, events, and projection output.
-- `src/models/baseline/wrProjection.ts`: Baseline PPR formula implementation.
-- `src/models/adjustments/tradeAdjustment.ts`: Deterministic context engine that modifies player inputs when a trade occurs.
-- `src/models/projection/projectPlayer.ts`: Orchestrates baseline projection, event adjustment, recalculation, and explanation output.
-- `src/data/scenarios/waddleToBroncos.ts`: Hardcoded scenario data for Jaylen Waddle.
-- `src/utils/`: Shared math helpers and explanation generation.
-- `tests/`: Unit and scenario coverage for arithmetic, adjustment behavior, and end-to-end validity.
+- `src/types/` defines players, teams, events, scenarios, and projection output contracts.
+- `src/models/baseline/wrProjection.ts` calculates the baseline PPR breakdown from player inputs.
+- `src/models/adjustments/handlers/` stores one handler per supported event type.
+- `src/models/adjustments/dispatchEventAdjustment.ts` is the event dispatcher that converts a `ProjectionEvent` into common `AdjustedProjectionInputs`.
+- `src/models/adjustments/confidenceScore.ts` turns rule-based inputs into a numeric score and `LOW`/`MEDIUM`/`HIGH` band.
+- `src/models/projection/projectPlayer.ts` orchestrates baseline projection, dispatching, recomputation, delta generation, confidence scoring, and explanation assembly.
+- `src/models/scenarios/registry.ts` and `runScenario.ts` provide reusable scenario execution.
 
-## MVP Boundaries
-- Supports WR/TE pass-catchers only.
-- No live APIs, scraping, databases, or transaction ingestion.
-- No UI or service layer.
-- Uses placeholder team context indices to keep the structure simple and deterministic.
+## Event dispatcher design
+1. `projectPlayer` computes the baseline projection from the untouched player profile.
+2. The dispatcher receives the player, prior team context, new team context, and event.
+3. The dispatcher routes to the matching handler based on `event.type`.
+4. Each handler returns the same `AdjustedProjectionInputs` shape:
+   - adjusted player inputs
+   - multiplier audit trail
+   - explanation bullets
+   - materially changed variable list
+5. The orchestration layer recomputes the adjusted projection and passes the changed-variable list into the confidence module.
 
-## Projection Flow
-1. Start from a player baseline profile.
-2. Compute baseline targets, receptions, yards, touchdowns, and PPR points.
-3. If a trade event exists, compare old and new team context.
-4. Adjust underlying rate and volume inputs with bounded multipliers.
-5. Re-run the baseline formula using adjusted inputs.
-6. Return before/after outputs and human-readable explanation bullets.
+## Design principles
+- Adjust underlying variables, not fantasy points directly.
+- Keep changes bounded and realistic.
+- Keep rookie-driven changes more modest than clearer veteran events.
+- Bias teammate-injury scenarios toward target opportunity changes.
+- Bias signing scenarios toward increased competition.
+- Keep the system deterministic and easily testable.
