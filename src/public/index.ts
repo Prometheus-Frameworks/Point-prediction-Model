@@ -12,6 +12,8 @@ export { predictBaselineModelService } from '../services/predictBaselineModelSer
 export { predictWithIntervalsService } from '../services/predictWithIntervalsService.js';
 export { evaluateCalibrationService } from '../services/evaluateCalibrationService.js';
 export { evaluateSubgroupStabilityService } from '../services/evaluateSubgroupStabilityService.js';
+export { runProjectionDiagnosticsService } from '../services/runProjectionDiagnosticsService.js';
+export { scoreRegressionCandidatesService, scoreRegressionCandidates, buildProjectionDiagnostic } from '../services/scoreRegressionCandidatesService.js';
 export { runModelBacktestService } from '../services/runModelBacktestService.js';
 export type {
   BuildFeatureBatchOutput,
@@ -42,6 +44,10 @@ export type {
   EvaluateCalibrationResult,
   EvaluateSubgroupStabilityOutput,
   EvaluateSubgroupStabilityResult,
+  RunProjectionDiagnosticsEnvelope,
+  RunProjectionDiagnosticsResult,
+  ScoreRegressionCandidatesEnvelope,
+  ScoreRegressionCandidatesResult,
   ServiceError,
   ServiceResult,
   ServiceWarning,
@@ -104,3 +110,29 @@ export type {
   SubgroupStabilityRow,
   SubgroupStabilityReport,
 } from '../models_ml/types/uncertainty.js';
+
+export { scoreUsageProductionGap } from '../diagnostics/scoring/scoreUsageProductionGap.js';
+export { scoreEfficiencyFragility } from '../diagnostics/scoring/scoreEfficiencyFragility.js';
+export { scoreTdRegressionRisk } from '../diagnostics/scoring/scoreTdRegressionRisk.js';
+export { scoreVolumeStability } from '../diagnostics/scoring/scoreVolumeStability.js';
+export { scoreProjectionStickiness } from '../diagnostics/scoring/scoreProjectionStickiness.js';
+export { combineRegressionScores } from '../diagnostics/scoring/combineRegressionScores.js';
+export { buildDiagnosticFlags } from '../diagnostics/explain/buildDiagnosticFlags.js';
+export { buildRegressionExplanation } from '../diagnostics/explain/buildRegressionExplanation.js';
+export type {
+  ProjectionDiagnosticInput,
+  RegressionDiagnosticFlag,
+  UsageProductionGapScore,
+  EfficiencyFragilityScore,
+  TdRegressionRiskScore,
+  VolumeStabilityScore,
+  ProjectionStickinessScore,
+  RegressionComponentScores,
+  CombinedRegressionScores,
+} from '../diagnostics/types/regressionSignal.js';
+export type {
+  ProjectionDiagnosticOutput,
+  ProjectionDiagnosticsSummary,
+  RunProjectionDiagnosticsOutput,
+  ScoreRegressionCandidatesOutput,
+} from '../diagnostics/types/diagnosticOutput.js';

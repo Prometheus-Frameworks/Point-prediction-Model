@@ -1,4 +1,6 @@
 import type { WrTeFeatureRow } from '../features/types/featureRow.js';
+import type { ProjectionDiagnosticInput } from '../diagnostics/types/regressionSignal.js';
+import type { RunProjectionDiagnosticsOutput, ScoreRegressionCandidatesOutput } from '../diagnostics/types/diagnosticOutput.js';
 import type { WindowEvaluation, BacktestReport } from '../datasets/types/metrics.js';
 import type { HistoricalLabeledRowInput, WrTeLabeledRow } from '../datasets/types/labeledRow.js';
 import type { RollingBacktestWindow } from '../datasets/types/split.js';
@@ -91,6 +93,12 @@ export interface EvaluateSubgroupStabilityOutput {
   report: SubgroupStabilityReport;
 }
 
+export interface RunProjectionDiagnosticsEnvelope extends RunProjectionDiagnosticsOutput {}
+
+export interface ScoreRegressionCandidatesEnvelope extends ScoreRegressionCandidatesOutput {
+  inputs?: ProjectionDiagnosticInput[];
+}
+
 export type IngestRawEventsResult = ServiceResult<IngestRawEventsOutput>;
 export type BuildScenariosResult = ServiceResult<BuildScenariosOutput>;
 export type BuildFeatureRowResult = ServiceResult<BuildFeatureRowOutput>;
@@ -103,6 +111,8 @@ export type RunBacktestResult = ServiceResult<RunBacktestOutput>;
 export type TrainBaselineModelResult = ServiceResult<TrainBaselineModelOutput>;
 export type PredictBaselineModelResult = ServiceResult<PredictBaselineModelOutput>;
 export type RunModelBacktestResult = ServiceResult<RunModelBacktestOutput>;
+export type RunProjectionDiagnosticsResult = ServiceResult<RunProjectionDiagnosticsEnvelope>;
+export type ScoreRegressionCandidatesResult = ServiceResult<ScoreRegressionCandidatesEnvelope>;
 
 export type { ServiceError, ServiceResult, ServiceWarning };
 
