@@ -90,6 +90,8 @@ Raw event files are validated before normalization. Validation fails clearly whe
 - `docs/scenarios.md`
 - `docs/batch-usage.md`
 - `docs/ingestion.md`
+- `docs/diagnostics.md`
+- `docs/regression-signals.md`
 
 ## How to test
 ```bash
