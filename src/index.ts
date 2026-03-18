@@ -3,18 +3,19 @@ import path from 'node:path';
 import { formatIngestSummaryTable } from './cli/formatIngestSummaryTable.js';
 import { formatSummaryTable } from './cli/formatSummaryTable.js';
 import { parseCliArgs } from './cli/parseCliArgs.js';
-import { buildScenariosFromEvents } from './ingestion/build/buildScenarioFromEvent.js';
-import { normalizeEvents } from './ingestion/normalize/normalizeEvent.js';
-import type { NormalizedEvent } from './ingestion/types/normalizedEvent.js';
-import { dedupeEvents } from './ingestion/quality/dedupeEvents.js';
-import { exportCsv } from './io/exportCsv.js';
-import { exportJson } from './io/exportJson.js';
 import { loadRawEventFile } from './io/loadRawEventFile.js';
 import { loadScenarioFile } from './io/loadScenarioFile.js';
 import { getDefaultScenarios, getScenarioById, scenarioRegistry } from './models/scenarios/registry.js';
-import { runScenario, type ScenarioRunResult } from './models/scenarios/runScenario.js';
-import { summarizeDelta } from './utils/explain.js';
+import { buildScenarios } from './services/buildScenariosService.js';
+import { ingestRawEvents } from './services/ingestRawEventsService.js';
+import { projectBatch } from './services/projectBatchService.js';
+import type { ServiceFailure } from './services/result.js';
+import type { ScenarioRunResult } from './models/scenarios/runScenario.js';
 import type { ProjectionScenario } from './types/scenario.js';
+import type { NormalizedEvent } from './ingestion/types/normalizedEvent.js';
+import { exportCsv } from './io/exportCsv.js';
+import { exportJson } from './io/exportJson.js';
+import { summarizeDelta } from './utils/explain.js';
 
 const printAvailableScenarios = () => {
   console.log('Available seeded scenarios:');
@@ -81,31 +82,71 @@ const maybeExportResults = async (
   const outputPath = path.resolve(exportFormat === 'json' ? 'results.json' : 'results.csv');
   const exporter = exportFormat === 'json' ? exportJson : exportCsv;
   await exporter(results, outputPath);
+
   console.log(`\nExported ${results.length} result(s) to ${outputPath}`);
 };
 
-const exportIngestArtifacts = async (events: NormalizedEvent[], scenarios: ProjectionScenario[]) => {
+const exportIngestArtifacts = async (
+  normalizedEvents: NormalizedEvent[],
+  scenarios: ProjectionScenario[],
+) => {
   const normalizedEventsPath = path.resolve('normalized-events.json');
   const normalizedScenariosPath = path.resolve('normalized-scenarios.json');
 
-  await writeFile(normalizedEventsPath, JSON.stringify(events, null, 2), 'utf8');
+  await writeFile(normalizedEventsPath, JSON.stringify(normalizedEvents, null, 2), 'utf8');
   await writeFile(normalizedScenariosPath, JSON.stringify(scenarios, null, 2), 'utf8');
 
-  console.log(`\nExported ${events.length} normalized event(s) to ${normalizedEventsPath}`);
+  console.log(`\nExported ${normalizedEvents.length} normalized event(s) to ${normalizedEventsPath}`);
   console.log(`Exported ${scenarios.length} normalized scenario(s) to ${normalizedScenariosPath}`);
+};
+
+const printServiceFailure = (failure: ServiceFailure) => {
+  for (const error of failure.errors) {
+    console.error(`\nError [${error.code}]: ${error.message}`);
+
+    if (error.details && typeof error.details === 'object' && 'issues' in error.details && Array.isArray(error.details.issues)) {
+      for (const issue of error.details.issues) {
+        console.error(`- ${issue}`);
+      }
+      continue;
+    }
+
+    if (error.details !== undefined) {
+      console.error(JSON.stringify(error.details, null, 2));
+    }
+  }
+};
+
+const printWarnings = (warnings: { code: string; message: string }[]) => {
+  for (const warning of warnings) {
+    console.warn(`Warning [${warning.code}]: ${warning.message}`);
+  }
 };
 
 const runIngestMode = async (filePath: string, exportFormat?: 'json') => {
   const rawEvents = await loadRawEventFile(filePath);
-  const normalizedEvents = dedupeEvents(normalizeEvents(rawEvents));
-  const scenarios = buildScenariosFromEvents(normalizedEvents);
+  const ingestResult = ingestRawEvents(rawEvents);
 
-  console.log(`\nIngested ${rawEvents.length} raw event(s) from ${filePath}.`);
-  console.log(`Collapsed to ${normalizedEvents.length} normalized event(s) after deduplication.\n`);
-  console.log(formatIngestSummaryTable(normalizedEvents));
+  if (!ingestResult.ok) {
+    printServiceFailure(ingestResult);
+    process.exitCode = 1;
+    return;
+  }
+
+  const scenarioResult = buildScenarios(ingestResult.data.normalizedEvents);
+  if (!scenarioResult.ok) {
+    printServiceFailure(scenarioResult);
+    process.exitCode = 1;
+    return;
+  }
+
+  printWarnings([...ingestResult.warnings, ...scenarioResult.warnings]);
+  console.log(`\nIngested ${ingestResult.data.rawEvents.length} raw event(s) from ${filePath}.`);
+  console.log(`Collapsed to ${ingestResult.data.normalizedEvents.length} normalized event(s) after deduplication.\n`);
+  console.log(formatIngestSummaryTable(ingestResult.data.normalizedEvents));
 
   if (exportFormat === 'json') {
-    await exportIngestArtifacts(normalizedEvents, scenarios);
+    await exportIngestArtifacts(ingestResult.data.normalizedEvents, scenarioResult.data.scenarios);
   }
 };
 
@@ -125,21 +166,28 @@ const main = async () => {
   }
 
   const { label, scenarios, exportFormat } = scenarioSelection;
+  const projectionResult = projectBatch(scenarios);
 
-  if (scenarios.length === 0) {
+  if (!projectionResult.ok) {
+    printServiceFailure(projectionResult);
+    process.exitCode = 1;
+    return;
+  }
+
+  printWarnings(projectionResult.warnings);
+
+  if (projectionResult.data.results.length === 0) {
     throw new Error(`No scenarios found for ${label}.`);
   }
 
-  const results = scenarios.map((scenario: ProjectionScenario) => runScenario(scenario));
+  console.log(`\nRunning ${projectionResult.data.results.length} scenario(s) from ${label}.\n`);
+  console.log(formatSummaryTable(projectionResult.data.results));
 
-  console.log(`\nRunning ${results.length} scenario(s) from ${label}.\n`);
-  console.log(formatSummaryTable(results));
-
-  if (results.length === 1) {
-    printDetailedResult(results[0]);
+  if (projectionResult.data.results.length === 1) {
+    printDetailedResult(projectionResult.data.results[0]);
   }
 
-  await maybeExportResults(exportFormat, results);
+  await maybeExportResults(exportFormat, projectionResult.data.results);
 };
 
 main().catch((error: unknown) => {

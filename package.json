@@ -3,6 +3,9 @@
   "version": "0.1.0",
   "private": true,
   "description": "TypeScript MVP for event-aware fantasy point projections for WR/TE pass-catchers.",
+  "exports": {
+    ".": "./src/public/index.ts"
+  },
   "type": "module",
   "scripts": {
     "dev": "tsx src/index.ts",
