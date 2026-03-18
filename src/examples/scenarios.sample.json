@@ -1,0 +1,96 @@
+[
+  {
+    "metadata": {
+      "id": "sample-bowers-vacated-targets",
+      "title": "Brock Bowers benefits from vacated routes",
+      "description": "A sample TE scenario loaded from JSON.",
+      "tags": ["sample", "te"],
+      "defaultRun": false
+    },
+    "player": {
+      "id": "brock-bowers",
+      "name": "Brock Bowers",
+      "position": "TE",
+      "team": "LV",
+      "sampleSizeGames": 17,
+      "routesPerGame": 31,
+      "targetsPerRouteRun": 0.24,
+      "catchRate": 0.69,
+      "yardsPerTarget": 8.2,
+      "tdPerTarget": 0.06,
+      "rushPointsPerGame": 0
+    },
+    "previousTeamContext": {
+      "team": "LV",
+      "quarterback": "Aidan O'Connell",
+      "targetCompetitionIndex": 78,
+      "qbEfficiencyIndex": 91,
+      "passTdEnvironmentIndex": 90,
+      "playVolumeIndex": 98,
+      "passRateIndex": 101
+    },
+    "newTeamContext": {
+      "team": "LV",
+      "quarterback": "Aidan O'Connell",
+      "targetCompetitionIndex": 68,
+      "qbEfficiencyIndex": 93,
+      "passTdEnvironmentIndex": 94,
+      "playVolumeIndex": 99,
+      "passRateIndex": 103
+    },
+    "event": {
+      "type": "TEAMMATE_INJURY",
+      "description": "A starting WR is expected to miss significant time.",
+      "effectiveWeek": 1,
+      "severity": 7,
+      "clarity": 0.88
+    }
+  },
+  {
+    "metadata": {
+      "id": "sample-wr-new-signing",
+      "title": "Veteran WR navigates a new signing",
+      "description": "A sample WR scenario loaded from JSON.",
+      "tags": ["sample", "wr"],
+      "defaultRun": false
+    },
+    "player": {
+      "id": "drake-london",
+      "name": "Drake London",
+      "position": "WR",
+      "team": "ATL",
+      "sampleSizeGames": 17,
+      "routesPerGame": 35,
+      "targetsPerRouteRun": 0.27,
+      "catchRate": 0.65,
+      "yardsPerTarget": 8.9,
+      "tdPerTarget": 0.07,
+      "rushPointsPerGame": 0.1
+    },
+    "previousTeamContext": {
+      "team": "ATL",
+      "quarterback": "Kirk Cousins",
+      "targetCompetitionIndex": 72,
+      "qbEfficiencyIndex": 102,
+      "passTdEnvironmentIndex": 101,
+      "playVolumeIndex": 100,
+      "passRateIndex": 99
+    },
+    "newTeamContext": {
+      "team": "ATL",
+      "quarterback": "Kirk Cousins",
+      "targetCompetitionIndex": 81,
+      "qbEfficiencyIndex": 101,
+      "passTdEnvironmentIndex": 100,
+      "playVolumeIndex": 100,
+      "passRateIndex": 98
+    },
+    "event": {
+      "type": "PLAYER_SIGNING",
+      "description": "Atlanta signs another proven target earner.",
+      "effectiveWeek": 1,
+      "severity": 5,
+      "clarity": 0.84
+    }
+  }
+]
