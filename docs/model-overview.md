@@ -11,6 +11,7 @@ This project projects fantasy points per game for WR/TE pass-catchers and applie
 - `src/models/adjustments/confidenceScore.ts` turns rule-based inputs into a numeric score and `LOW`/`MEDIUM`/`HIGH` band.
 - `src/models/projection/projectPlayer.ts` orchestrates baseline projection, dispatching, recomputation, delta generation, confidence scoring, and explanation assembly.
 - `src/models/scenarios/registry.ts` and `runScenario.ts` provide reusable scenario execution.
+- `src/features/` defines the model-ready WR/TE feature contract, grouped builders, validation rules, and sample feature payloads.
 
 ## Event dispatcher design
 1. `projectPlayer` computes the baseline projection from the untouched player profile.
@@ -30,3 +31,6 @@ This project projects fantasy points per game for WR/TE pass-catchers and applie
 - Bias teammate-injury scenarios toward target opportunity changes.
 - Bias signing scenarios toward increased competition.
 - Keep the system deterministic and easily testable.
+
+## Feature-engine addition (PR6)
+The feature engine sits beside the deterministic projection engine. It converts pre-projection player/team/matchup/event inputs plus rolling summaries into validated flat feature rows that are safe for future model training or inference.

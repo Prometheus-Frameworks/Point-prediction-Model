@@ -10,6 +10,8 @@ Import from the public module:
 import {
   ingestRawEvents,
   buildScenarios,
+  buildFeatureRowService,
+  buildFeatureBatchService,
   projectScenario,
   projectBatch,
   projectFromRawEvents,
@@ -22,6 +24,8 @@ If you are consuming the repo directly from source in a monorepo, the equivalent
 import {
   ingestRawEvents,
   buildScenarios,
+  buildFeatureRowService,
+  buildFeatureBatchService,
   projectScenario,
   projectBatch,
   projectFromRawEvents,
@@ -161,3 +165,18 @@ if (!result.ok) {
 ## CLI relationship
 
 The CLI still supports JSON and CSV file ingestion plus seeded scenario execution, but those file-based workflows now resolve inputs and then delegate the actual pipeline work to the same service-layer functions documented above.
+
+## Example: feature row generation
+
+```ts
+import { buildFeatureRowService } from 'point-prediction-model';
+import { sampleFeatureInputs } from 'point-prediction-model';
+
+const featureResult = buildFeatureRowService(sampleFeatureInputs.stableVeteranWr);
+
+if (featureResult.ok) {
+  console.log(featureResult.data.row);
+}
+```
+
+Feature rows use the flat `WrTeFeatureRow` contract documented in `docs/feature-schema.md`, which is intended to stay stable across both training and inference workflows.
