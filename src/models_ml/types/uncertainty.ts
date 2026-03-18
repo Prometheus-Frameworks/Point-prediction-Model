@@ -114,7 +114,7 @@ export interface CalibrationReport {
 export interface SubgroupDefinition {
   key: string;
   label: string;
-  matches: (row: WrTeFeatureRow) => boolean;
+  matches: (input: { row: WrTeFeatureRow; pointPrediction: number; actual: number }) => boolean;
 }
 
 export interface SubgroupFamilyDefinition {

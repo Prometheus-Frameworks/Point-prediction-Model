@@ -1,6 +1,6 @@
 # Uncertainty-aware prediction intervals
 
-## What PR9 adds
+## What PR10 adds
 
 The WR/TE baseline model now supports deterministic prediction intervals derived from historical residual behavior rather than from a second learned model. Interval assignment is designed to be honest about where the baseline is stable and where it is fragile.
 
@@ -15,7 +15,7 @@ Public prediction payloads can now include:
 
 ## Methodology
 
-PR9 uses residual-based empirical intervals.
+PR10 uses residual-based empirical intervals.
 
 1. Run the existing learned WR/TE baseline through the rolling backtest harness.
 2. Collect historical residuals (`actual - prediction`) from out-of-sample test windows.
@@ -63,3 +63,12 @@ Residual-based intervals are still limited.
 - Favor wider intervals when sample support is thin.
 - Treat bucket assignment as model diagnostics, not just presentation metadata.
 - If a subgroup keeps under-covering nominal intervals, expose it and investigate feature gaps before adding model complexity.
+
+## Artifact handling
+
+Uncertainty metadata can travel in either of two deterministic forms:
+
+- embedded on the baseline model artifact as `uncertaintyMetadata`
+- stored as a companion uncertainty artifact containing residual bucket definitions and calibration summary metadata
+
+That keeps interval assignment compatible with the current artifact save/load flow without introducing a new learned model family.

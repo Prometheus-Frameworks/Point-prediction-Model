@@ -21,7 +21,7 @@ export const evaluateSubgroupStability = (
 
   for (const family of subgroupDefinitions) {
     for (const group of family.groups) {
-      const matched = inputs.filter((input) => group.matches(input.row));
+      const matched = inputs.filter((input) => group.matches(input));
       const residuals = matched.map((input) => input.actual - input.pointPrediction);
       const absoluteErrors = residuals.map((residual) => Math.abs(residual));
       const intervals = uncertaintyArtifact
