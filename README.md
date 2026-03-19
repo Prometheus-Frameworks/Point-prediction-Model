@@ -14,7 +14,7 @@ Point Prediction Model is a deterministic TypeScript engine for projecting WR/TE
 - No database
 - No scraping or live news ingestion
 - No polling jobs
-- No API routes in the modeling package
+- CLI and HTTP API entrypoints are kept separate so the modeling package stays reusable.
 - Read-only frontend prototype now lives in `app/web/`
 - No ML, Monte Carlo, or simulation
 - Deterministic, typed, modular adjustment logic
@@ -58,6 +58,38 @@ npm run dev -- ingest ./src/ingestion/examples/raw-events.sample.json --export j
 - `--export csv` writes `results.csv` for scenario runs.
 
 Batch runs print a compact comparison table with baseline, adjusted, delta, and confidence columns so multiple scenarios are easy to compare in one terminal view. Ingest runs print a summary table of normalized events, quality labels, and deduped source counts.
+
+## API server usage
+```bash
+npm install
+npm run dev:api
+```
+
+### API behavior
+- The API server entrypoint lives at `src/server.ts`.
+- The server listens on `process.env.PORT` and falls back to `3000` locally.
+- Minimal CORS is enabled for `/health` and `/api/*` so the local frontend can call the API during development.
+- `GET /health` returns a Railway-friendly JSON health payload.
+- `GET /api/decision-board/mock` returns the seeded mock decision-board dataset built from the existing service-layer sample output.
+- `GET /api/scenarios` returns an index of the seeded scenario registry.
+- `POST /api/project/scenarios` accepts a `ProjectionScenario[]` payload or `{ "scenarios": [...] }` and returns `projectBatch(...)` results.
+
+### Local API examples
+```bash
+curl http://localhost:3000/health
+curl http://localhost:3000/api/decision-board/mock
+curl http://localhost:3000/api/scenarios
+```
+
+### Railway deployment
+Configure Railway to run the API entrypoint instead of the CLI:
+
+```bash
+npm install
+npm run start:api
+```
+
+Railway injects the `PORT` environment variable automatically. The server reads that variable directly, with `3000` as a local fallback when `PORT` is unset.
 
 ## Raw ingestion flow
 1. Parse raw JSON or CSV event files.
@@ -113,6 +145,10 @@ The frontend is intentionally static in this PR. Future work should map service-
 npm test
 npm run build
 ```
+
+### Entry points
+- `npm run dev` / `npm start` keep the CLI workflow in `src/index.ts`.
+- `npm run dev:api` / `npm run start:api` run the Hono API server in `src/server.ts`.
 
 ## How to add scenarios
 ### Seeded scenarios
