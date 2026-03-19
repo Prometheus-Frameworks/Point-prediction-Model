@@ -60,6 +60,10 @@ export type {
   CompareProjectionToConsensusResult,
   ScoreMarketEdgesEnvelope,
   ScoreMarketEdgesResult,
+  BuildDecisionBoardOutput,
+  BuildDecisionBoardResult,
+  RankDecisionBoardOutput,
+  RankDecisionBoardResult,
   ServiceError,
   ServiceResult,
   ServiceWarning,
@@ -176,6 +180,22 @@ export { applyAdditiveDelta } from '../fusion/policies/applyAdditiveDelta.js';
 export { applyWeightedFusion } from '../fusion/policies/applyWeightedFusion.js';
 export { applyBoundedFusion } from '../fusion/policies/applyBoundedFusion.js';
 export { sampleFusionRun } from '../fusion/examples/sampleFusionRun.js';
+export { scoreCompositeSignal } from '../board/scoring/scoreCompositeSignal.js';
+export { scoreTrustworthiness } from '../board/scoring/scoreTrustworthiness.js';
+export { scoreActionability, assignActionTier } from '../board/scoring/scoreActionability.js';
+export { buildDecisionTags } from '../board/flags/buildDecisionTags.js';
+export { buildDecisionReasons } from '../board/flags/buildDecisionReasons.js';
+export { sortDecisionBoard } from '../board/ranking/sortDecisionBoard.js';
+export { filterDecisionBoard } from '../board/ranking/filterDecisionBoard.js';
+export { rankDecisionBoard } from '../board/ranking/rankDecisionBoard.js';
+export { sampleDecisionBoardRun } from '../board/examples/sampleDecisionBoardRun.js';
+export { buildDecisionBoardService } from '../services/buildDecisionBoardService.js';
+export { rankDecisionBoardService } from '../services/rankDecisionBoardService.js';
 export type { FusionPolicyName, FusionConfig, FusionPolicyInput, FusionPolicyResult } from '../fusion/types/fusionConfig.js';
 export { defaultFusionConfig } from '../fusion/types/fusionConfig.js';
 export type { FusedProjection, FusionConfidence, FusedProjectionDiagnostics } from '../fusion/types/fusedProjection.js';
+
+export type { ActionTier } from '../board/types/actionTier.js';
+export type { DecisionBoardRow, DecisionBoardInputs, DecisionDirection, DecisionTag } from '../board/types/decisionBoardRow.js';
+export type { RankedDecisionBoardRow, RankDecisionBoardOptions } from '../board/ranking/rankDecisionBoard.js';
+export type { FilterDecisionBoardOptions } from '../board/ranking/filterDecisionBoard.js';

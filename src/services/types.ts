@@ -15,6 +15,8 @@ import type { TrainWrTeBaselineModelResult } from '../models_ml/training/trainWr
 import type { ProjectionScenario } from '../types/scenario.js';
 import type { FusedProjection } from '../fusion/types/fusedProjection.js';
 import type { CompareProjectionToConsensusOutput, ScoreMarketEdgesOutput } from '../market/types/edgeOutput.js';
+import type { DecisionBoardRow } from '../board/types/decisionBoardRow.js';
+import type { RankedDecisionBoardRow } from '../board/ranking/rankDecisionBoard.js';
 import type { ServiceError, ServiceResult, ServiceWarning } from './result.js';
 
 export interface IngestRawEventsOutput {
@@ -121,6 +123,18 @@ export interface CompareProjectionToConsensusEnvelope extends CompareProjectionT
 
 export interface ScoreMarketEdgesEnvelope extends ScoreMarketEdgesOutput {}
 
+export interface BuildDecisionBoardOutput {
+  rows: DecisionBoardRow[];
+  unmatchedFusedProjectionRowIds: string[];
+  unmatchedMarketEdgeRowIds: string[];
+  generatedAt: string;
+}
+
+export interface RankDecisionBoardOutput {
+  rows: RankedDecisionBoardRow[];
+  generatedAt: string;
+}
+
 export type IngestRawEventsResult = ServiceResult<IngestRawEventsOutput>;
 export type BuildScenariosResult = ServiceResult<BuildScenariosOutput>;
 export type BuildFeatureRowResult = ServiceResult<BuildFeatureRowOutput>;
@@ -139,6 +153,8 @@ export type RunFusedProjectionResult = ServiceResult<RunFusedProjectionOutput>;
 export type RunFusedBatchResult = ServiceResult<RunFusedBatchOutput>;
 export type CompareProjectionToConsensusResult = ServiceResult<CompareProjectionToConsensusEnvelope>;
 export type ScoreMarketEdgesResult = ServiceResult<ScoreMarketEdgesEnvelope>;
+export type BuildDecisionBoardResult = ServiceResult<BuildDecisionBoardOutput>;
+export type RankDecisionBoardResult = ServiceResult<RankDecisionBoardOutput>;
 
 export type { ServiceError, ServiceResult, ServiceWarning };
 
