@@ -14,7 +14,8 @@ Point Prediction Model is a deterministic TypeScript engine for projecting WR/TE
 - No database
 - No scraping or live news ingestion
 - No polling jobs
-- No API routes or UI
+- No API routes in the modeling package
+- Read-only frontend prototype now lives in `app/web/`
 - No ML, Monte Carlo, or simulation
 - Deterministic, typed, modular adjustment logic
 - Projection logic stays separate from ingestion logic
@@ -92,6 +93,20 @@ Raw event files are validated before normalization. Validation fails clearly whe
 - `docs/ingestion.md`
 - `docs/diagnostics.md`
 - `docs/regression-signals.md`
+- `app/web/README.md` for the read-only decision-board frontend
+
+## Frontend decision board
+A read-only React + TypeScript + Vite frontend now lives in `app/web/`. It renders a decision board with fused projections, interval summaries, diagnostics, fusion notes, and market edge context using static example data drawn from the repository's existing sample outputs.
+
+### Run the frontend
+```bash
+cd app/web
+npm install
+npm run dev
+```
+
+### Frontend integration plan
+The frontend is intentionally static in this PR. Future work should map service-layer outputs such as fused projections, diagnostics, and market-edge comparisons into the UI's display model instead of adding database or auth infrastructure.
 
 ## How to test
 ```bash
