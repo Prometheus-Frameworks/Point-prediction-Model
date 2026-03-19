@@ -1,1 +1,27 @@
-{"name": "your-project-name","version": "1.0.0","scripts": {"start": "tsx src/index.ts"},"dependencies": {}}
+{
+  "name": "point-prediction-model",
+  "version": "0.1.0",
+  "private": true,
+  "description": "TypeScript MVP for event-aware fantasy point projections for WR/TE pass-catchers.",
+  "exports": {
+    ".": "./src/public/index.ts"
+  },
+  "type": "module",
+  "scripts": {
+    "start": "tsx src/index.ts",
+    "dev": "tsx src/index.ts",
+    "build": "tsc --noEmit",
+    "test": "vitest run"
+  },
+  "engines": {
+    "node": ">=20"
+  },
+  "dependencies": {
+    "tsx": "^4.19.2"
+  },
+  "devDependencies": {
+    "@types/node": "^25.5.0",
+    "typescript": "^5.7.3",
+    "vitest": "^2.1.8"
+  }
+}
