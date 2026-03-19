@@ -15,6 +15,8 @@ export { runFusedBatchService } from '../services/runFusedBatchService.js';
 export { evaluateCalibrationService } from '../services/evaluateCalibrationService.js';
 export { evaluateSubgroupStabilityService } from '../services/evaluateSubgroupStabilityService.js';
 export { runProjectionDiagnosticsService } from '../services/runProjectionDiagnosticsService.js';
+export { compareProjectionToConsensusService } from '../services/compareProjectionToConsensusService.js';
+export { scoreMarketEdgesService } from '../services/scoreMarketEdgesService.js';
 export { scoreRegressionCandidatesService, scoreRegressionCandidates, buildProjectionDiagnostic } from '../services/scoreRegressionCandidatesService.js';
 export { runModelBacktestService } from '../services/runModelBacktestService.js';
 export type {
@@ -54,6 +56,10 @@ export type {
   RunFusedProjectionResult,
   RunFusedBatchOutput,
   RunFusedBatchResult,
+  CompareProjectionToConsensusEnvelope,
+  CompareProjectionToConsensusResult,
+  ScoreMarketEdgesEnvelope,
+  ScoreMarketEdgesResult,
   ServiceError,
   ServiceResult,
   ServiceWarning,
@@ -117,6 +123,25 @@ export type {
   SubgroupStabilityRow,
   SubgroupStabilityReport,
 } from '../models_ml/types/uncertainty.js';
+
+export { compareToConsensus, deriveEdgeDirection } from '../market/scoring/compareToConsensus.js';
+export { scoreRawEdge, scoreRawEdgeFromComparison } from '../market/scoring/scoreRawEdge.js';
+export { scoreTrustAdjustedEdge } from '../market/scoring/scoreTrustAdjustedEdge.js';
+export { buildEdgeFlags } from '../market/flags/buildEdgeFlags.js';
+export { buildEdgeExplanation } from '../market/flags/buildEdgeExplanation.js';
+export { sampleConsensusComparison } from '../market/examples/sampleConsensusComparison.js';
+export type { ConsensusInput } from '../market/types/consensusInput.js';
+export type {
+  EdgeDirection,
+  MarketEdgeFlag,
+  MarketProjectionInput,
+  MarketEdgeScoringContext,
+  MarketComparisonOutput,
+  TrustAdjustmentBreakdown,
+  MarketEdgeOutput,
+  CompareProjectionToConsensusOutput,
+  ScoreMarketEdgesOutput,
+} from '../market/types/edgeOutput.js';
 
 export { scoreUsageProductionGap } from '../diagnostics/scoring/scoreUsageProductionGap.js';
 export { scoreEfficiencyFragility } from '../diagnostics/scoring/scoreEfficiencyFragility.js';
