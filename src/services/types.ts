@@ -14,6 +14,7 @@ import type { CalibrationReport, SubgroupStabilityReport, WrTeBaselineUncertaint
 import type { TrainWrTeBaselineModelResult } from '../models_ml/training/trainWrTeBaselineModel.js';
 import type { ProjectionScenario } from '../types/scenario.js';
 import type { FusedProjection } from '../fusion/types/fusedProjection.js';
+import type { CompareProjectionToConsensusOutput, ScoreMarketEdgesOutput } from '../market/types/edgeOutput.js';
 import type { ServiceError, ServiceResult, ServiceWarning } from './result.js';
 
 export interface IngestRawEventsOutput {
@@ -116,6 +117,10 @@ export interface RunFusedBatchOutput {
   fusedProjections: FusedProjection[];
 }
 
+export interface CompareProjectionToConsensusEnvelope extends CompareProjectionToConsensusOutput {}
+
+export interface ScoreMarketEdgesEnvelope extends ScoreMarketEdgesOutput {}
+
 export type IngestRawEventsResult = ServiceResult<IngestRawEventsOutput>;
 export type BuildScenariosResult = ServiceResult<BuildScenariosOutput>;
 export type BuildFeatureRowResult = ServiceResult<BuildFeatureRowOutput>;
@@ -132,6 +137,8 @@ export type RunProjectionDiagnosticsResult = ServiceResult<RunProjectionDiagnost
 export type ScoreRegressionCandidatesResult = ServiceResult<ScoreRegressionCandidatesEnvelope>;
 export type RunFusedProjectionResult = ServiceResult<RunFusedProjectionOutput>;
 export type RunFusedBatchResult = ServiceResult<RunFusedBatchOutput>;
+export type CompareProjectionToConsensusResult = ServiceResult<CompareProjectionToConsensusEnvelope>;
+export type ScoreMarketEdgesResult = ServiceResult<ScoreMarketEdgesEnvelope>;
 
 export type { ServiceError, ServiceResult, ServiceWarning };
 
