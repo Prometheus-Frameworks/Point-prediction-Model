@@ -1,7 +1,7 @@
 # Point Prediction Model
 
 ## Purpose
-Point Prediction Model is a deterministic TypeScript engine for projecting WR/TE PPR fantasy points, re-running those projections across multiple event-driven scenarios, and now ingesting raw external transaction/news-style inputs into clean canonical events before the projection engine runs.
+Point Prediction Model is a deterministic TypeScript engine for projecting WR/TE PPR fantasy points, re-running those projections across multiple event-driven scenarios, and ingesting raw external transaction/news-style inputs into clean canonical events before the projection engine runs.
 
 ## Supported canonical events
 - `PLAYER_TRADE`
@@ -14,8 +14,8 @@ Point Prediction Model is a deterministic TypeScript engine for projecting WR/TE
 - No database
 - No scraping or live news ingestion
 - No polling jobs
-- CLI and HTTP API entrypoints are kept separate so the modeling package stays reusable.
-- Read-only frontend prototype now lives in `app/web/`
+- CLI and HTTP API entrypoints are kept separate so the modeling package stays reusable
+- Read-only frontend prototype lives in `app/web/`
 - No ML, Monte Carlo, or simulation
 - Deterministic, typed, modular adjustment logic
 - Projection logic stays separate from ingestion logic
@@ -31,12 +31,18 @@ Point Prediction Model is a deterministic TypeScript engine for projecting WR/TE
 - `src/ingestion/quality/` scores input quality and deduplicates near-identical normalized events.
 - `src/ingestion/build/` converts normalized events into deterministic `ProjectionScenario` objects via seeded/mock lookups.
 - `src/data/scenarios/` seeds reusable scenario definitions.
-- `src/examples/` and `src/ingestion/examples/` contain sample scenario and raw-event inputs.
+- `app/web/` contains the standalone frontend app.
 
-## CLI usage
+## Local development
+
+### Backend CLI
 ```bash
 npm install
 npm run dev
+```
+
+Optional CLI examples:
+```bash
 npm run dev -- all
 npm run dev -- scenario waddle-to-broncos
 npm run dev -- file ./src/examples/scenarios.sample.json
@@ -48,24 +54,69 @@ npm run dev -- ingest ./src/ingestion/examples/raw-events.sample.csv
 npm run dev -- ingest ./src/ingestion/examples/raw-events.sample.json --export json
 ```
 
-### CLI behavior
-- `npm run dev` runs the default seeded scenarios.
-- `npm run dev -- all` runs all seeded scenarios.
-- `npm run dev -- scenario <id>` runs a single seeded scenario by id.
-- `npm run dev -- file <path>` loads a JSON or CSV batch file, validates it, and runs each scenario.
-- `npm run dev -- ingest <path>` loads raw external events, validates them, normalizes them, deduplicates them, and builds projection scenarios.
-- `--export json` writes `results.json` for scenario runs, or both `normalized-events.json` and `normalized-scenarios.json` for ingest runs.
-- `--export csv` writes `results.csv` for scenario runs.
-
-Batch runs print a compact comparison table with baseline, adjusted, delta, and confidence columns so multiple scenarios are easy to compare in one terminal view. Ingest runs print a summary table of normalized events, quality labels, and deduped source counts.
-
-## API server usage
+### Backend API
 ```bash
 npm install
 npm run dev:api
 ```
 
-### API behavior
+Local API examples:
+```bash
+curl http://localhost:3000/health
+curl http://localhost:3000/api/decision-board/mock
+curl http://localhost:3000/api/scenarios
+```
+
+### Frontend
+```bash
+cd app/web
+npm install
+npm run dev
+```
+
+The frontend reads `VITE_API_BASE_URL` for future API-backed views, but it can continue rendering mock data during this separation-focused phase.
+
+## Railway deployment
+This repo is intended to run as two separate Railway services from the same repository.
+
+### API service
+- **Root Directory:** `/`
+- **Install Command:** `npm install`
+- **Build Command:** `npm run build`
+- **Start Command:** `npm run start:api`
+
+Environment:
+- `PORT` is provided by Railway.
+- Copy `.env.example` for local parity when running the API outside Railway.
+
+### Frontend service
+- **Root Directory:** `app/web`
+- **Install Command:** `npm install`
+- **Build Command:** `npm run build`
+- **Start Command:** `npm run preview -- --host 0.0.0.0 --port $PORT`
+
+Environment:
+- `VITE_API_BASE_URL` should point to the deployed API service URL.
+- Copy `app/web/.env.example` for local development defaults.
+
+## Environment variables
+### API service
+- `PORT=3000` locally by default, or Railway-provided `PORT` in deployment.
+
+### Frontend service
+- `VITE_API_BASE_URL=http://localhost:3000` for local development.
+- Future frontend API calls should read from `VITE_API_BASE_URL` instead of hardcoding backend URLs.
+
+## Project boundaries
+- Backend/library/API code lives under `src/`.
+- Frontend code lives under `app/web/`.
+- Backend must not import from `app/web/`.
+- Frontend must not import runtime server code from `src/server.ts`.
+- Frontend should consume backend functionality over HTTP responses, not backend internals.
+- The root package is responsible only for backend/library CLI and API workflows.
+- The frontend package keeps its own `dev`, `build`, and `preview` lifecycle inside `app/web/`.
+
+## API behavior
 - The API server entrypoint lives at `src/server.ts`.
 - The server listens on `process.env.PORT` and falls back to `3000` locally.
 - Minimal CORS is enabled for `/health` and `/api/*` so the local frontend can call the API during development.
@@ -73,23 +124,6 @@ npm run dev:api
 - `GET /api/decision-board/mock` returns the seeded mock decision-board dataset built from the existing service-layer sample output.
 - `GET /api/scenarios` returns an index of the seeded scenario registry.
 - `POST /api/project/scenarios` accepts a `ProjectionScenario[]` payload or `{ "scenarios": [...] }` and returns `projectBatch(...)` results.
-
-### Local API examples
-```bash
-curl http://localhost:3000/health
-curl http://localhost:3000/api/decision-board/mock
-curl http://localhost:3000/api/scenarios
-```
-
-### Railway deployment
-Configure Railway to run the API entrypoint instead of the CLI:
-
-```bash
-npm install
-npm run start:api
-```
-
-Railway injects the `PORT` environment variable automatically. The server reads that variable directly, with `3000` as a local fallback when `PORT` is unset.
 
 ## Raw ingestion flow
 1. Parse raw JSON or CSV event files.
@@ -125,20 +159,7 @@ Raw event files are validated before normalization. Validation fails clearly whe
 - `docs/ingestion.md`
 - `docs/diagnostics.md`
 - `docs/regression-signals.md`
-- `app/web/README.md` for the read-only decision-board frontend
-
-## Frontend decision board
-A read-only React + TypeScript + Vite frontend now lives in `app/web/`. It renders a decision board with fused projections, interval summaries, diagnostics, fusion notes, and market edge context using static example data drawn from the repository's existing sample outputs.
-
-### Run the frontend
-```bash
-cd app/web
-npm install
-npm run dev
-```
-
-### Frontend integration plan
-The frontend is intentionally static in this PR. Future work should map service-layer outputs such as fused projections, diagnostics, and market-edge comparisons into the UI's display model instead of adding database or auth infrastructure.
+- `app/web/README.md` for frontend-specific workflows
 
 ## How to test
 ```bash
@@ -146,9 +167,10 @@ npm test
 npm run build
 ```
 
-### Entry points
+## Entry points
 - `npm run dev` / `npm start` keep the CLI workflow in `src/index.ts`.
 - `npm run dev:api` / `npm run start:api` run the Hono API server in `src/server.ts`.
+- `cd app/web && npm run dev` / `npm run build` / `npm run preview` stay within the frontend package.
 
 ## How to add scenarios
 ### Seeded scenarios

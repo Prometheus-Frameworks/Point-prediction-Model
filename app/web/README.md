@@ -1,53 +1,45 @@
 # Decision Board Frontend
 
-## Purpose
-This frontend is a polished, read-only presentation layer for the repo's existing WR/TE decision-board style outputs. It intentionally uses static example data so reviewers can inspect the UI immediately without adding auth, databases, or API plumbing.
+## Frontend
+This frontend is a read-only UI for the Point Prediction Model decision board.
 
-## Tech stack
-- React
-- TypeScript
-- Vite
-
-## Run locally
+## Local development
 ```bash
-cd app/web
 npm install
 npm run dev
 ```
 
 Then open the local Vite URL, typically `http://localhost:5173`.
 
-## Build for verification
+## Build
 ```bash
-cd app/web
 npm run build
 ```
 
-## Mock data source
-The first-pass dataset lives in `src/data/mockDecisionBoard.ts`. Its values are hand-curated from the repository's existing example outputs and concepts, including:
-- fusion examples in `src/fusion/examples/sampleFusionRun.ts`
-- market comparison examples in `src/market/examples/sampleConsensusComparison.ts`
-- diagnostics examples in `src/diagnostics/examples/sampleDiagnosticsRun.ts`
-- feature example inputs in `src/features/examples/sampleFeatureRows.ts`
+## Preview
+```bash
+npm run preview -- --host 0.0.0.0 --port 4173
+```
 
-The UI purposefully preserves uncertainty, diagnostics, fusion context, and market edge framing so the board reflects the existing model surface area instead of hiding caveats.
+## Environment
+Create a `.env` file from `.env.example` and set:
 
-## Included UI pieces
-- `DecisionBoardTable`
-- `PlayerDetailPanel`
-- `ProjectionIntervalBar`
-- `EdgeBadge`
-- `DiagnosticTagList`
-- `ActionTierPill`
-- `FilterBar`
-- `SortControl`
+```bash
+VITE_API_BASE_URL=http://localhost:3000
+```
 
-## Future integration path
-A later PR can replace `mockDecisionBoard.ts` with a typed adapter that maps real service outputs into this display shape. The cleanest path is:
-1. materialize fused projection outputs from `runFusedBatchService`
-2. attach diagnostics from `runProjectionDiagnosticsService`
-3. attach market edge outputs from `scoreMarketEdgesService`
-4. serialize that combined payload as a static artifact or lightweight endpoint
-5. keep this app read-only unless product scope explicitly expands
+The UI can continue using mock/example data during development, but future API-backed views should read from `VITE_API_BASE_URL` rather than hardcoding URLs.
 
-That keeps presentation concerns in `app/web/` while preserving the repo's current modeling and scoring boundaries.
+## API base URL usage
+- `src/config.ts` centralizes the frontend API base URL.
+- The current UI still uses mock decision-board data for a read-only experience.
+- Future data-fetching helpers should build requests from `appConfig.apiBaseUrl` so deployment remains environment-driven.
+
+## Boundaries
+- Frontend code lives entirely under `app/web/`.
+- The frontend should consume backend data over HTTP.
+- The frontend must not import runtime server code from `src/server.ts`.
+- Backend code under `src/` must not import frontend modules.
+
+## Future integration plan
+A later PR can replace `src/data/mockDecisionBoard.ts` with a typed adapter that maps real service outputs into this display shape. The near-term plan is to swap mock data for API-backed responses without changing the frontend's deployment boundary or bundling the frontend into the backend runtime.

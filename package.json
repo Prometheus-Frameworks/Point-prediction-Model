@@ -10,10 +10,10 @@
   "scripts": {
     "start": "tsx src/index.ts",
     "dev": "tsx src/index.ts",
-    "build": "tsc --noEmit",
-    "test": "vitest run",
     "start:api": "tsx src/server.ts",
-    "dev:api": "tsx watch src/server.ts"
+    "dev:api": "tsx watch src/server.ts",
+    "build": "tsc --noEmit",
+    "test": "vitest run"
   },
   "engines": {
     "node": ">=20"

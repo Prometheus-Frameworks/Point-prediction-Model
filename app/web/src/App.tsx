@@ -3,6 +3,7 @@ import { DecisionBoardTable } from './components/DecisionBoardTable';
 import { FilterBar } from './components/FilterBar';
 import { PlayerDetailPanel } from './components/PlayerDetailPanel';
 import { SortControl } from './components/SortControl';
+import { appConfig } from './config';
 import { mockDecisionBoard } from './data/mockDecisionBoard';
 import type { DecisionBoardFilters, DecisionBoardPlayer, SortKey } from './types';
 import { filterPlayers, isStrongEdge, sortPlayers } from './utils';
@@ -45,6 +46,7 @@ function App() {
                 A polished board for fused projections, uncertainty intervals, diagnostics, and market edge signals. This pass stays
                 intentionally static so the repo&apos;s existing outputs are easier to review before any full-stack integration.
               </p>
+              <p className="hero-copy">Future API-backed views will read from <code>{appConfig.apiBaseUrl}</code>.</p>
             </div>
             <div className="hero-stats">
               <div className="stat-card">
