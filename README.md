@@ -62,6 +62,7 @@ npm run dev:api
 
 Local API examples:
 ```bash
+curl http://localhost:3000/
 curl http://localhost:3000/health
 curl http://localhost:3000/api/decision-board/mock
 curl http://localhost:3000/api/scenarios
@@ -74,7 +75,29 @@ npm install
 npm run dev
 ```
 
-The frontend reads `VITE_API_BASE_URL` for future API-backed views, but it can continue rendering mock data during this separation-focused phase.
+The frontend now prefers the live backend and reads its base URL from `VITE_API_BASE_URL`.
+
+### Run backend + frontend locally together
+In terminal 1:
+```bash
+npm run dev:api
+```
+
+In terminal 2:
+```bash
+cd app/web
+cp .env.example .env
+npm run dev
+```
+
+The default local pairing is:
+- frontend: `http://localhost:5173`
+- backend: `http://localhost:3000`
+
+If you want the frontend to use the deployed Railway API instead, update `app/web/.env`:
+```bash
+VITE_API_BASE_URL=https://<your-railway-api>.up.railway.app
+```
 
 ## Railway deployment
 This repo is intended to run as two separate Railway services from the same repository.
@@ -87,6 +110,7 @@ This repo is intended to run as two separate Railway services from the same repo
 
 Environment:
 - `PORT` is provided by Railway.
+- `CORS_ORIGIN` can be set to a comma-separated allowlist for frontend origins. If omitted, local Vite origins are allowed by default.
 - Copy `.env.example` for local parity when running the API outside Railway.
 
 ### Frontend service
@@ -102,10 +126,11 @@ Environment:
 ## Environment variables
 ### API service
 - `PORT=3000` locally by default, or Railway-provided `PORT` in deployment.
+- `CORS_ORIGIN=http://localhost:5173,http://127.0.0.1:5173` locally by default when unset; set it explicitly in deployment to allow your frontend origin(s).
 
 ### Frontend service
 - `VITE_API_BASE_URL=http://localhost:3000` for local development.
-- Future frontend API calls should read from `VITE_API_BASE_URL` instead of hardcoding backend URLs.
+- Point `VITE_API_BASE_URL` at the Railway API URL when you want the frontend to use the live deployment.
 
 ## Project boundaries
 - Backend/library/API code lives under `src/`.
@@ -119,11 +144,18 @@ Environment:
 ## API behavior
 - The API server entrypoint lives at `src/server.ts`.
 - The server listens on `process.env.PORT` and falls back to `3000` locally.
-- Minimal CORS is enabled for `/health` and `/api/*` so the local frontend can call the API during development.
+- `GET /` returns a small JSON service index instead of a 404 so the deployed root feels intentional.
+- Minimal CORS is enabled so local Vite and deployed frontend origins can call the backend without extra proxying.
 - `GET /health` returns a Railway-friendly JSON health payload.
 - `GET /api/decision-board/mock` returns the seeded mock decision-board dataset built from the existing service-layer sample output.
 - `GET /api/scenarios` returns an index of the seeded scenario registry.
 - `POST /api/project/scenarios` accepts a `ProjectionScenario[]` payload or `{ "scenarios": [...] }` and returns `projectBatch(...)` results.
+
+## Frontend/API integration behavior
+- The frontend uses `app/web/src/api/client.ts` and `app/web/src/api/decisionBoard.ts` for HTTP requests.
+- The decision board prefers live API data from `/api/decision-board/mock`.
+- The UI shows explicit loading, API failure, and empty-response states.
+- Local mock data is retained as a fallback so the frontend remains usable during offline UI work or temporary API issues.
 
 ## Raw ingestion flow
 1. Parse raw JSON or CSV event files.
@@ -165,6 +197,7 @@ Raw event files are validated before normalization. Validation fails clearly whe
 ```bash
 npm test
 npm run build
+cd app/web && npm run build
 ```
 
 ## Entry points
