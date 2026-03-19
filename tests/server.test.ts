@@ -4,6 +4,24 @@ import { createApp } from '../src/api/app.js';
 describe('API server', () => {
   const app = createApp();
 
+
+  it('returns a friendly API root index', async () => {
+    const response = await app.request('/');
+
+    expect(response.status).toBe(200);
+    await expect(response.json()).resolves.toEqual({
+      ok: true,
+      service: 'point-prediction-model',
+      description: 'WR/TE projection, diagnostics, fusion, and market-edge API',
+      endpoints: {
+        health: '/health',
+        scenarios: '/api/scenarios',
+        decisionBoardMock: '/api/decision-board/mock',
+        projectScenarios: '/api/project/scenarios',
+      },
+    });
+  });
+
   it('returns health status', async () => {
     const response = await app.request('/health');
 

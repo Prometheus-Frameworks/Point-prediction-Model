@@ -178,6 +178,30 @@ select {
   border-radius: 12px;
 }
 
+
+.status-panel {
+  margin-bottom: 16px;
+  padding: 16px 18px;
+  background: var(--panel-soft);
+  border: 1px solid var(--border);
+  border-radius: 18px;
+}
+
+.status-panel h2 {
+  margin: 0 0 6px;
+  font-size: 1rem;
+}
+
+.status-panel p {
+  margin: 0;
+  color: var(--text-soft);
+}
+
+.status-panel--warning {
+  border-color: rgba(245, 215, 110, 0.4);
+  box-shadow: inset 0 0 0 1px rgba(245, 215, 110, 0.08);
+}
+
 .board-summary {
   display: flex;
   justify-content: space-between;
