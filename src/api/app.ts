@@ -5,6 +5,7 @@ import { registerHealthRoutes } from './routes/health.js';
 import { registerProjectScenarioRoutes } from './routes/projectScenarios.js';
 import { registerScenarioRoutes } from './routes/scenarios.js';
 import { registerScoringRoutes } from './routes/scoring.js';
+import { registerTiberScoringRoutes } from './routes/tiberScoring.js';
 
 const defaultAllowedOrigins = ['http://localhost:5173', 'http://127.0.0.1:5173'];
 
@@ -46,6 +47,10 @@ export const createApp = () => {
         scoringReplacement: '/api/scoring/replacement',
         scoringWeeklyRankings: '/api/scoring/weekly/rankings',
         scoringRos: '/api/scoring/ros',
+        tiberWeeklyPlayerCard: '/api/tiber/weekly/player-card',
+        tiberWeeklyRankings: '/api/tiber/weekly/rankings',
+        tiberRosPlayerCard: '/api/tiber/ros/player-card',
+        tiberWeeklyCompare: '/api/tiber/weekly/compare',
         legacyScenarios: '/api/scenarios',
         legacyScenarioProjection: '/api/project/scenarios',
       },
@@ -55,6 +60,7 @@ export const createApp = () => {
   registerHealthRoutes(app);
   registerDecisionBoardRoutes(app);
   registerScoringRoutes(app);
+  registerTiberScoringRoutes(app);
   registerScenarioRoutes(app);
   registerProjectScenarioRoutes(app);
 
