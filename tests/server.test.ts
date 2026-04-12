@@ -11,13 +11,17 @@ describe('API server', () => {
     expect(response.status).toBe(200);
     await expect(response.json()).resolves.toEqual({
       ok: true,
-      service: 'point-prediction-model',
-      description: 'WR/TE projection, diagnostics, fusion, and market-edge API',
+      service: 'tiber-fantasy-scoring-engine',
+      description: 'In-season fantasy scoring kernel (xFPG, replacement, VORP, ranges, confidence).',
       endpoints: {
         health: '/health',
-        scenarios: '/api/scenarios',
-        decisionBoardMock: '/api/decision-board/mock',
-        projectScenarios: '/api/project/scenarios',
+        scoringWeeklyPlayer: '/api/scoring/weekly/player',
+        scoringWeeklyBatch: '/api/scoring/weekly/batch',
+        scoringReplacement: '/api/scoring/replacement',
+        scoringWeeklyRankings: '/api/scoring/weekly/rankings',
+        scoringRos: '/api/scoring/ros',
+        legacyScenarios: '/api/scenarios',
+        legacyScenarioProjection: '/api/project/scenarios',
       },
     });
   });
@@ -28,8 +32,50 @@ describe('API server', () => {
     expect(response.status).toBe(200);
     await expect(response.json()).resolves.toEqual({
       ok: true,
-      service: 'point-prediction-model',
+      service: 'tiber-fantasy-scoring-engine',
     });
+  });
+
+
+  it('scores weekly players through the scoring API', async () => {
+    const response = await app.request('/api/scoring/weekly/batch', {
+      method: 'POST',
+      headers: { 'content-type': 'application/json' },
+      body: JSON.stringify({
+        league_context: {
+          teams: 12,
+          starters: { QB: 1, RB: 2, WR: 2, TE: 1, FLEX: 1 },
+        },
+        players: [
+          {
+            player_id: 'qb-a',
+            player_name: 'Test QB',
+            team: 'DAL',
+            position: 'QB',
+            games_sampled: 16,
+            pass_attempts_pg: 33,
+            pass_yards_per_attempt: 7.4,
+            pass_td_rate: 0.06,
+            interception_rate: 0.02,
+            rush_attempts_pg: 5,
+            rush_yards_per_attempt: 5.8,
+            rush_td_rate: 0.03,
+          },
+        ],
+      }),
+    });
+
+    const payload = await response.json();
+
+    expect(response.status).toBe(200);
+    expect(payload.ok).toBe(true);
+    expect(payload.data.players[0]).toEqual(
+      expect.objectContaining({
+        expected_points: expect.any(Number),
+        replacement_points: expect.any(Number),
+        vorp: expect.any(Number),
+      }),
+    );
   });
 
   it('returns mock decision-board data', async () => {
