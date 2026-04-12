@@ -7,7 +7,7 @@ const port = Number.isFinite(parsedPort) ? parsedPort : fallbackPort;
 
 const app = createApp();
 
-console.log(`Starting point-prediction-model API on port ${port}.`);
+console.log(`Starting tiber fantasy scoring API on port ${port}.`);
 
 serve({
   fetch: app.fetch,

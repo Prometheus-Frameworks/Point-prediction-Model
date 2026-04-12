@@ -4,6 +4,7 @@ import { registerDecisionBoardRoutes } from './routes/decisionBoard.js';
 import { registerHealthRoutes } from './routes/health.js';
 import { registerProjectScenarioRoutes } from './routes/projectScenarios.js';
 import { registerScenarioRoutes } from './routes/scenarios.js';
+import { registerScoringRoutes } from './routes/scoring.js';
 
 const defaultAllowedOrigins = ['http://localhost:5173', 'http://127.0.0.1:5173'];
 
@@ -36,19 +37,24 @@ export const createApp = () => {
   app.get('/', (c) =>
     c.json({
       ok: true,
-      service: 'point-prediction-model',
-      description: 'WR/TE projection, diagnostics, fusion, and market-edge API',
+      service: 'tiber-fantasy-scoring-engine',
+      description: 'In-season fantasy scoring kernel (xFPG, replacement, VORP, ranges, confidence).',
       endpoints: {
         health: '/health',
-        scenarios: '/api/scenarios',
-        decisionBoardMock: '/api/decision-board/mock',
-        projectScenarios: '/api/project/scenarios',
+        scoringWeeklyPlayer: '/api/scoring/weekly/player',
+        scoringWeeklyBatch: '/api/scoring/weekly/batch',
+        scoringReplacement: '/api/scoring/replacement',
+        scoringWeeklyRankings: '/api/scoring/weekly/rankings',
+        scoringRos: '/api/scoring/ros',
+        legacyScenarios: '/api/scenarios',
+        legacyScenarioProjection: '/api/project/scenarios',
       },
     }),
   );
 
   registerHealthRoutes(app);
   registerDecisionBoardRoutes(app);
+  registerScoringRoutes(app);
   registerScenarioRoutes(app);
   registerProjectScenarioRoutes(app);
 
