@@ -13,6 +13,17 @@ export type {
   WeeklyScoringRequest,
   WeeklyScoringResponse,
 } from '../contracts/scoring.js';
+export type {
+  BuildRosPlayerCardOutput,
+  BuildWeeklyPlayerCardOutput,
+  BuildWeeklyRankingsViewOutput,
+  TiberRosPlayerCard,
+  TiberScoringComponents,
+  TiberScoringMetadata,
+  TiberWeeklyPlayerCard,
+  TiberWeeklyRankingsRow,
+  TiberWeeklyRankingsView,
+} from '../contracts/tiberScoring.js';
 
 export { calculateExpectedPoints } from '../calculators/xfpg/calculateExpectedPoints.js';
 export { calculateQbXfpg } from '../calculators/xfpg/calculateQbXfpg.js';
@@ -30,6 +41,7 @@ export { scoreWeeklyBatchWithOverlayService } from '../services/scoring/scoreWee
 export { generateReplacementBaselinesService } from '../services/scoring/generateReplacementBaselinesService.js';
 export { rankWeeklyScoringService } from '../services/scoring/rankWeeklyScoringService.js';
 export { scoreRosService } from '../services/scoring/scoreRosService.js';
+export { buildWeeklyPlayerCardService, buildWeeklyRankingsViewService, buildRosPlayerCardService } from '../services/scoring/buildTiberViewsService.js';
 
 export { buildScenarios } from '../services/buildScenariosService.js';
 export { buildHistoricalDatasetService } from '../services/buildHistoricalDatasetService.js';
