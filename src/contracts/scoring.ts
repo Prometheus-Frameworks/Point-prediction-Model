@@ -19,16 +19,27 @@ export interface PlayerOpportunityInput {
   pass_td_rate?: number;
   interception_rate?: number;
   rush_attempts_pg?: number;
+  designed_rush_attempts_pg?: number;
+  scramble_rush_attempts_pg?: number;
+  goal_line_rush_attempts_pg?: number;
   rush_yards_per_attempt?: number;
   rush_td_rate?: number;
 
+  route_participation?: number;
   routes_pg?: number;
   targets_per_route?: number;
+  first_read_target_share?: number;
+  air_yards_per_target?: number;
+  end_zone_targets_pg?: number;
+  red_zone_target_share?: number;
   catch_rate?: number;
   yards_per_target?: number;
   receiving_td_rate?: number;
 
   carries_pg?: number;
+  inside_10_carries_pg?: number;
+  rush_td_opportunity?: number;
+  receiving_role_strength?: number;
   targets_pg?: number;
   yards_per_carry?: number;
   yards_per_reception?: number;
