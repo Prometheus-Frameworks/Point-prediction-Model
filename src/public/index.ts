@@ -258,3 +258,15 @@ export type { ActionTier } from '../board/types/actionTier.js';
 export type { DecisionBoardRow, DecisionBoardInputs, DecisionDirection, DecisionTag } from '../board/types/decisionBoardRow.js';
 export type { RankedDecisionBoardRow, RankDecisionBoardOptions } from '../board/ranking/rankDecisionBoard.js';
 export type { FilterDecisionBoardOptions } from '../board/ranking/filterDecisionBoard.js';
+export { createScoringServiceClient } from '../integration/scoringServiceClient.js';
+export type { ScoringServiceClient } from '../integration/scoringServiceClient.js';
+export { toLeagueContextInput, toScoringPlayerInput } from '../integration/scoringRequestMappers.js';
+export { loadWeeklyPlayerPageScoring, loadWeeklyRankingsScoring } from '../integration/tiberScoringFlows.js';
+export type {
+  ScoringServiceRosPlayerCard,
+  ScoringServiceWeeklyCompare,
+  ScoringServiceWeeklyPlayerCard,
+  ScoringServiceWeeklyRankingsRow,
+  TiberLeagueSettings,
+  TiberPlayerSnapshot,
+} from '../integration/scoringServiceTypes.js';
