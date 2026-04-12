@@ -1,4 +1,14 @@
-import type { ConfidenceBand, FragilityTag, RosScoringRequest, ScoringPosition, VolatilityTag, WeeklyScoringRequest } from './scoring.js';
+import type {
+  ConfidenceBand,
+  FragilityTag,
+  LeagueContextInput,
+  PlayerOpportunityInput,
+  ReplacementPointsOverride,
+  RosScoringRequest,
+  ScoringPosition,
+  VolatilityTag,
+  WeeklyScoringRequest,
+} from './scoring.js';
 
 export interface TiberScoringMetadata {
   generated_at: string;
@@ -97,6 +107,59 @@ export interface BuildWeeklyRankingsViewOutput {
 export interface BuildRosPlayerCardOutput {
   card: TiberRosPlayerCard;
   remaining_weeks: number;
+}
+
+export interface TiberWeeklyCompareDelta {
+  expected_points: number;
+  vorp: number;
+  floor: number;
+  ceiling: number;
+}
+
+export type TiberWeeklyCompareVerdict = 'lean_a' | 'lean_b' | 'close';
+
+export interface TiberWeeklyCompareView {
+  generated_at: string;
+  scoring_mode: 'weekly';
+  view_type: 'compare';
+  verdict: TiberWeeklyCompareVerdict;
+  player_a: TiberWeeklyPlayerCard;
+  player_b: TiberWeeklyPlayerCard;
+  deltas: TiberWeeklyCompareDelta;
+}
+
+export interface BuildWeeklyCompareViewRequest extends Omit<WeeklyScoringRequest, 'players'> {
+  player_a: WeeklyScoringRequest['players'][number];
+  player_b: WeeklyScoringRequest['players'][number];
+}
+
+export interface BuildWeeklyCompareViewOutput {
+  view: TiberWeeklyCompareView;
+}
+
+export interface TiberWeeklyPlayerCardRequest {
+  players: [PlayerOpportunityInput];
+  league_context: LeagueContextInput;
+  comparison_pool?: PlayerOpportunityInput[];
+  replacement_points_override?: ReplacementPointsOverride;
+}
+
+export interface TiberWeeklyRankingsRequest extends WeeklyScoringRequest {}
+
+export interface TiberRosPlayerCardRequest {
+  players: [PlayerOpportunityInput];
+  league_context: LeagueContextInput;
+  remaining_weeks: number;
+  comparison_pool?: PlayerOpportunityInput[];
+  replacement_points_override?: ReplacementPointsOverride;
+}
+
+export interface TiberWeeklyCompareRequest {
+  player_a: PlayerOpportunityInput;
+  player_b: PlayerOpportunityInput;
+  league_context: LeagueContextInput;
+  comparison_pool?: PlayerOpportunityInput[];
+  replacement_points_override?: ReplacementPointsOverride;
 }
 
 export type BuildWeeklyPlayerCardRequest = WeeklyScoringRequest;

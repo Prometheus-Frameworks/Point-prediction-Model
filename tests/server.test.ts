@@ -3,6 +3,38 @@ import { createApp } from '../src/api/app.js';
 
 describe('API server', () => {
   const app = createApp();
+  const leagueContext = {
+    teams: 12,
+    starters: { QB: 1, RB: 2, WR: 2, TE: 1, FLEX: 1 },
+  };
+  const weeklyPlayers = [
+    {
+      player_id: 'qb-a',
+      player_name: 'Test QB',
+      team: 'DAL',
+      position: 'QB',
+      games_sampled: 16,
+      pass_attempts_pg: 33,
+      pass_yards_per_attempt: 7.4,
+      pass_td_rate: 0.06,
+      interception_rate: 0.02,
+      rush_attempts_pg: 5,
+      rush_yards_per_attempt: 5.8,
+      rush_td_rate: 0.03,
+    },
+    {
+      player_id: 'wr-b',
+      player_name: 'Test WR',
+      team: 'MIA',
+      position: 'WR',
+      games_sampled: 16,
+      routes_pg: 33,
+      targets_per_route: 0.24,
+      catch_rate: 0.67,
+      yards_per_target: 8.7,
+      receiving_td_rate: 0.061,
+    },
+  ];
 
 
   it('returns a friendly API root index', async () => {
@@ -20,6 +52,10 @@ describe('API server', () => {
         scoringReplacement: '/api/scoring/replacement',
         scoringWeeklyRankings: '/api/scoring/weekly/rankings',
         scoringRos: '/api/scoring/ros',
+        tiberWeeklyPlayerCard: '/api/tiber/weekly/player-card',
+        tiberWeeklyRankings: '/api/tiber/weekly/rankings',
+        tiberRosPlayerCard: '/api/tiber/ros/player-card',
+        tiberWeeklyCompare: '/api/tiber/weekly/compare',
         legacyScenarios: '/api/scenarios',
         legacyScenarioProjection: '/api/project/scenarios',
       },
@@ -42,26 +78,8 @@ describe('API server', () => {
       method: 'POST',
       headers: { 'content-type': 'application/json' },
       body: JSON.stringify({
-        league_context: {
-          teams: 12,
-          starters: { QB: 1, RB: 2, WR: 2, TE: 1, FLEX: 1 },
-        },
-        players: [
-          {
-            player_id: 'qb-a',
-            player_name: 'Test QB',
-            team: 'DAL',
-            position: 'QB',
-            games_sampled: 16,
-            pass_attempts_pg: 33,
-            pass_yards_per_attempt: 7.4,
-            pass_td_rate: 0.06,
-            interception_rate: 0.02,
-            rush_attempts_pg: 5,
-            rush_yards_per_attempt: 5.8,
-            rush_td_rate: 0.03,
-          },
-        ],
+        league_context: leagueContext,
+        players: [weeklyPlayers[0]],
       }),
     });
 
@@ -90,6 +108,128 @@ describe('API server', () => {
       expect.objectContaining({
         rowId: expect.any(String),
         playerName: expect.any(String),
+      }),
+    );
+  });
+
+  it('returns Tiber weekly player card payloads', async () => {
+    const response = await app.request('/api/tiber/weekly/player-card', {
+      method: 'POST',
+      headers: { 'content-type': 'application/json' },
+      body: JSON.stringify({
+        league_context: leagueContext,
+        players: [weeklyPlayers[0]],
+      }),
+    });
+    const payload = await response.json();
+
+    expect(response.status).toBe(200);
+    expect(payload.ok).toBe(true);
+    expect(payload.data.card).toEqual(
+      expect.objectContaining({
+        player_id: 'qb-a',
+        scoring_mode: 'weekly',
+        view_type: 'player_card',
+        scoring_components: expect.objectContaining({
+          expected_points: expect.any(Number),
+          vorp: expect.any(Number),
+        }),
+      }),
+    );
+  });
+
+  it('returns Tiber weekly rankings rows', async () => {
+    const response = await app.request('/api/tiber/weekly/rankings', {
+      method: 'POST',
+      headers: { 'content-type': 'application/json' },
+      body: JSON.stringify({
+        league_context: leagueContext,
+        players: weeklyPlayers,
+      }),
+    });
+    const payload = await response.json();
+
+    expect(response.status).toBe(200);
+    expect(payload.ok).toBe(true);
+    expect(payload.data.view.view_type).toBe('rankings');
+    expect(payload.data.view.rows.length).toBe(2);
+    expect(payload.data.view.rows[0]).toEqual(
+      expect.objectContaining({
+        rank: 1,
+        player_id: expect.any(String),
+        expected_points: expect.any(Number),
+      }),
+    );
+  });
+
+  it('returns Tiber ROS player card with weekly + ROS values', async () => {
+    const response = await app.request('/api/tiber/ros/player-card', {
+      method: 'POST',
+      headers: { 'content-type': 'application/json' },
+      body: JSON.stringify({
+        league_context: leagueContext,
+        players: [weeklyPlayers[1]],
+        remaining_weeks: 8,
+      }),
+    });
+    const payload = await response.json();
+
+    expect(response.status).toBe(200);
+    expect(payload.ok).toBe(true);
+    expect(payload.data.remaining_weeks).toBe(8);
+    expect(payload.data.card).toEqual(
+      expect.objectContaining({
+        player_id: 'wr-b',
+        scoring_mode: 'ros',
+        view_type: 'player_card',
+        ros_expected_points: expect.any(Number),
+        ros_vorp: expect.any(Number),
+      }),
+    );
+  });
+
+  it('returns clear 400s for invalid Tiber route shapes', async () => {
+    const response = await app.request('/api/tiber/weekly/player-card', {
+      method: 'POST',
+      headers: { 'content-type': 'application/json' },
+      body: JSON.stringify({
+        league_context: leagueContext,
+        players: weeklyPlayers,
+      }),
+    });
+    const payload = await response.json();
+
+    expect(response.status).toBe(400);
+    expect(payload.ok).toBe(false);
+    expect(payload.errors[0].code).toBe('BAD_REQUEST');
+    expect(payload.errors[0].message).toContain('exactly one player');
+  });
+
+  it('returns a stable Tiber weekly comparison surface', async () => {
+    const response = await app.request('/api/tiber/weekly/compare', {
+      method: 'POST',
+      headers: { 'content-type': 'application/json' },
+      body: JSON.stringify({
+        league_context: leagueContext,
+        player_a: weeklyPlayers[0],
+        player_b: weeklyPlayers[1],
+      }),
+    });
+    const payload = await response.json();
+
+    expect(response.status).toBe(200);
+    expect(payload.ok).toBe(true);
+    expect(payload.data.view).toEqual(
+      expect.objectContaining({
+        scoring_mode: 'weekly',
+        view_type: 'compare',
+        verdict: expect.stringMatching(/lean_a|lean_b|close/),
+        deltas: expect.objectContaining({
+          expected_points: expect.any(Number),
+          vorp: expect.any(Number),
+          floor: expect.any(Number),
+          ceiling: expect.any(Number),
+        }),
       }),
     );
   });
