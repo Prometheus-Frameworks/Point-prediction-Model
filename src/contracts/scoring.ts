@@ -32,7 +32,6 @@ export interface PlayerOpportunityInput {
   targets_pg?: number;
   yards_per_carry?: number;
   yards_per_reception?: number;
-  receiving_role_factor?: number;
 
   role_stability?: number;
   td_dependency?: number;
@@ -47,6 +46,11 @@ export interface LeagueContextInput {
     TE: number;
     FLEX?: number;
   };
+  flex_allocation?: {
+    RB?: number;
+    WR?: number;
+    TE?: number;
+  };
   replacement_buffer?: number;
 }
 
@@ -56,6 +60,8 @@ export interface ReplacementBaseline {
   replacement_rank: number;
   sample_size: number;
 }
+
+export type ReplacementPointsOverride = Partial<Record<ScoringPosition, number>>;
 
 export interface ScoredPlayerOutput {
   player_id: string;
@@ -77,12 +83,16 @@ export interface ScoredPlayerOutput {
 export interface WeeklyScoringRequest {
   players: PlayerOpportunityInput[];
   league_context: LeagueContextInput;
+  comparison_pool?: PlayerOpportunityInput[];
+  replacement_points_override?: ReplacementPointsOverride;
 }
 
 export interface RosScoringRequest {
   players: PlayerOpportunityInput[];
   league_context: LeagueContextInput;
   remaining_weeks: number;
+  comparison_pool?: PlayerOpportunityInput[];
+  replacement_points_override?: ReplacementPointsOverride;
 }
 
 export interface WeeklyScoringResponse {

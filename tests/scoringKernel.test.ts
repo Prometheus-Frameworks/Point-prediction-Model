@@ -1,6 +1,10 @@
 import { describe, expect, it } from 'vitest';
+import { calculateExpectedPoints } from '../src/calculators/xfpg/calculateExpectedPoints.js';
+import { calculateReplacementBaselines } from '../src/calculators/replacement/calculateReplacementBaselines.js';
 import { scoreRosService } from '../src/services/scoring/scoreRosService.js';
 import { scoreWeeklyBatchService } from '../src/services/scoring/scoreWeeklyBatchService.js';
+import { scoreWeeklyBatchWithOverlayService } from '../src/services/scoring/scoreWeeklyBatchWithOverlayService.js';
+import { scoreWeeklyPlayerService } from '../src/services/scoring/scoreWeeklyPlayerService.js';
 import { generateReplacementBaselinesService } from '../src/services/scoring/generateReplacementBaselinesService.js';
 import type { WeeklyScoringRequest } from '../src/contracts/scoring.js';
 
@@ -120,5 +124,67 @@ describe('scoring kernel services', () => {
 
     expect(result.data.players[0].ros_expected_points).toBeTypeOf('number');
     expect(result.data.remaining_weeks).toBe(8);
+  });
+
+  it('uses a meaningful replacement reference for single-player scoring', () => {
+    const result = scoreWeeklyPlayerService({
+      players: [request.players[0]],
+      league_context: request.league_context,
+    });
+
+    expect(result.ok).toBe(true);
+    if (!result.ok) return;
+
+    expect(result.data.player.replacement_points).toBeGreaterThan(0);
+    expect(result.data.player.vorp).not.toBe(0);
+  });
+
+  it('applies expected_points_delta to final scoring outputs', () => {
+    const base = scoreWeeklyBatchService(request);
+    const withOverlay = scoreWeeklyBatchWithOverlayService({
+      ...request,
+      overlays: [{ player_id: 'wr-1', expected_points_delta: 2.5, note: 'Usage bump' }],
+    });
+
+    expect(base.ok).toBe(true);
+    expect(withOverlay.ok).toBe(true);
+    if (!base.ok || !withOverlay.ok) return;
+
+    const baseWr = base.data.players.find((player) => player.player_id === 'wr-1');
+    const overlayWr = withOverlay.data.players.find((player) => player.player_id === 'wr-1');
+
+    expect(baseWr).toBeDefined();
+    expect(overlayWr).toBeDefined();
+    if (!baseWr || !overlayWr) return;
+
+    expect(overlayWr.expected_points).toBeGreaterThan(baseWr.expected_points);
+    expect(overlayWr.vorp).toBeGreaterThan(baseWr.vorp);
+  });
+
+  it('incorporates FLEX demand into replacement rank for flex-eligible positions', () => {
+    const playerPool = request.players.flatMap((player, index) =>
+      Array.from({ length: 16 }, (_, sample) => ({
+        ...player,
+        player_id: `${player.player_id}-${sample}`,
+        player_name: `${player.player_name} ${sample}`,
+        position: index === 0 ? 'WR' : player.position,
+      })),
+    );
+
+    const xfpgPool = playerPool.map((player) => ({ ...player, __xfpg: calculateExpectedPoints(player) }));
+
+    const noFlex = calculateReplacementBaselines(xfpgPool, {
+      teams: 12,
+      starters: { QB: 1, RB: 2, WR: 2, TE: 1, FLEX: 0 },
+    });
+
+    const flex = calculateReplacementBaselines(xfpgPool, {
+      teams: 12,
+      starters: { QB: 1, RB: 2, WR: 2, TE: 1, FLEX: 1 },
+    });
+
+    expect(flex.RB.replacement_rank).toBeGreaterThan(noFlex.RB.replacement_rank);
+    expect(flex.WR.replacement_rank).toBeGreaterThan(noFlex.WR.replacement_rank);
+    expect(flex.TE.replacement_rank).toBeGreaterThan(noFlex.TE.replacement_rank);
   });
 });

@@ -1,17 +1,36 @@
 import type { LeagueContextInput, PlayerOpportunityInput, ReplacementBaseline, ScoringPosition } from '../../contracts/scoring.js';
 import { roundTo } from '../../core/scoringSystem.js';
 
-const baseStarterSlots = (league: LeagueContextInput): Record<ScoringPosition, number> => ({
-  QB: league.teams * league.starters.QB,
-  RB: league.teams * league.starters.RB,
-  WR: league.teams * league.starters.WR,
-  TE: league.teams * league.starters.TE,
-});
+type XfpgPlayer = PlayerOpportunityInput & { __xfpg?: number };
+
+const normalizeFlexAllocation = (league: LeagueContextInput) => {
+  const configured = league.flex_allocation;
+  const rb = configured?.RB ?? 0.35;
+  const wr = configured?.WR ?? 0.5;
+  const te = configured?.TE ?? 0.15;
+  const total = rb + wr + te;
+
+  if (total <= 0) {
+    return { RB: 0.35, WR: 0.5, TE: 0.15 };
+  }
+
+  return { RB: rb / total, WR: wr / total, TE: te / total };
+};
+
+const baseStarterSlots = (league: LeagueContextInput): Record<ScoringPosition, number> => {
+  const flexSlots = league.teams * (league.starters.FLEX ?? 0);
+  const flexAllocation = normalizeFlexAllocation(league);
+
+  return {
+    QB: league.teams * league.starters.QB,
+    RB: league.teams * league.starters.RB + flexSlots * flexAllocation.RB,
+    WR: league.teams * league.starters.WR + flexSlots * flexAllocation.WR,
+    TE: league.teams * league.starters.TE + flexSlots * flexAllocation.TE,
+  };
+};
 
 const positionPool = (players: XfpgPlayer[], position: ScoringPosition) =>
   players.filter((player) => player.position === position).sort((a, b) => (b.__xfpg ?? 0) - (a.__xfpg ?? 0));
-
-type XfpgPlayer = PlayerOpportunityInput & { __xfpg?: number };
 
 export const calculateReplacementBaselines = (
   players: XfpgPlayer[],

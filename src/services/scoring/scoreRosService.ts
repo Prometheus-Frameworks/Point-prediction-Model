@@ -7,6 +7,8 @@ export const scoreRosService = (request: RosScoringRequest): ServiceResult<RosSc
   const weeklyResult = scoreWeeklyBatchService({
     players: request.players,
     league_context: request.league_context,
+    comparison_pool: request.comparison_pool,
+    replacement_points_override: request.replacement_points_override,
   });
 
   if (!weeklyResult.ok) {

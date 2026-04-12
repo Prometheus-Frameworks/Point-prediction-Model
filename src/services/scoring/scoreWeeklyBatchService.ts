@@ -1,21 +1,21 @@
 import { calculateRangeProfile } from '../../calculators/range/calculateRangeProfile.js';
 import { calculateStabilityScore } from '../../calculators/range/calculateStabilityScore.js';
-import { calculateReplacementBaselines } from '../../calculators/replacement/calculateReplacementBaselines.js';
 import { calculateVorp } from '../../calculators/vorp/calculateVorp.js';
 import { calculateExpectedPoints } from '../../calculators/xfpg/calculateExpectedPoints.js';
 import type { ScoredPlayerOutput, WeeklyScoringRequest, WeeklyScoringResponse } from '../../contracts/scoring.js';
 import { serviceSuccess } from '../result.js';
 import type { ServiceResult } from '../result.js';
+import { resolveReplacementPoints } from './resolveReplacementPoints.js';
 
 export const scoreWeeklyBatchService = (request: WeeklyScoringRequest): ServiceResult<WeeklyScoringResponse> => {
   const xfpgPlayers = request.players.map((player) => ({ ...player, __xfpg: calculateExpectedPoints(player) }));
-  const baselines = calculateReplacementBaselines(xfpgPlayers, request.league_context);
+  const replacementPoints = resolveReplacementPoints(request, xfpgPlayers);
 
   const players: ScoredPlayerOutput[] = xfpgPlayers
     .map((player) => {
       const stability = calculateStabilityScore(player);
       const range = calculateRangeProfile(player.__xfpg, stability.volatility_input, stability.fragility_input);
-      const replacement = baselines[player.position].replacement_points;
+      const replacement = replacementPoints[player.position];
 
       return {
         player_id: player.player_id,

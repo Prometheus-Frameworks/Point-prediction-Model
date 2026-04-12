@@ -38,6 +38,13 @@ See `docs/migration-scoring-kernel.md` and `src/legacy/README.md`.
 
 Legacy scenario endpoints are still available for compatibility.
 
+### Replacement baseline behavior
+- `FLEX` now contributes to replacement-rank demand for RB/WR/TE via `league_context.flex_allocation` (defaults: RB 35%, WR 50%, TE 15%).
+- Single-player scoring supports meaningful VORP via:
+  - `comparison_pool` (preferred when available),
+  - `replacement_points_override`, or
+  - deterministic league-default replacement tables.
+
 ## Development
 ```bash
 npm install

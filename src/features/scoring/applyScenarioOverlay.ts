@@ -18,7 +18,6 @@ export const applyScenarioOverlay = (
     return { player, notes: [] };
   }
 
-  const expectedPointsDelta = matched.reduce((sum, overlay) => sum + (overlay.expected_points_delta ?? 0), 0);
   const roleStabilityDelta = matched.reduce((sum, overlay) => sum + (overlay.role_stability_delta ?? 0), 0);
   const tdDependencyDelta = matched.reduce((sum, overlay) => sum + (overlay.td_dependency_delta ?? 0), 0);
 
@@ -27,11 +26,6 @@ export const applyScenarioOverlay = (
       ...player,
       role_stability: roundTo((player.role_stability ?? 0.65) + roleStabilityDelta, 3),
       td_dependency: roundTo((player.td_dependency ?? 0.45) + tdDependencyDelta, 3),
-      routes_pg: player.routes_pg,
-      targets_pg: player.targets_pg,
-      carries_pg: player.carries_pg,
-      rush_attempts_pg: player.rush_attempts_pg,
-      receiving_role_factor: roundTo((player.receiving_role_factor ?? 1) + expectedPointsDelta / 30, 3),
     },
     notes: matched.map((overlay) => overlay.note),
   };

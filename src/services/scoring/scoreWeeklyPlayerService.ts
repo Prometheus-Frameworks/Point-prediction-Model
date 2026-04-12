@@ -1,11 +1,11 @@
 import { calculateRangeProfile } from '../../calculators/range/calculateRangeProfile.js';
 import { calculateStabilityScore } from '../../calculators/range/calculateStabilityScore.js';
-import { calculateReplacementBaselines } from '../../calculators/replacement/calculateReplacementBaselines.js';
 import { calculateVorp } from '../../calculators/vorp/calculateVorp.js';
 import { calculateExpectedPoints } from '../../calculators/xfpg/calculateExpectedPoints.js';
 import type { ScoredPlayerOutput, WeeklyScoringRequest } from '../../contracts/scoring.js';
 import { serviceSuccess } from '../result.js';
 import type { ServiceResult } from '../result.js';
+import { resolveReplacementPoints } from './resolveReplacementPoints.js';
 
 export interface WeeklyPlayerScoreOutput {
   player: ScoredPlayerOutput;
@@ -23,11 +23,11 @@ export const scoreWeeklyPlayerService = (
   }
 
   const xfpgPlayers = request.players.map((player) => ({ ...player, __xfpg: calculateExpectedPoints(player) }));
-  const baselines = calculateReplacementBaselines(xfpgPlayers, request.league_context);
+  const replacementPoints = resolveReplacementPoints(request, xfpgPlayers);
   const player = xfpgPlayers[0];
   const stability = calculateStabilityScore(player);
   const range = calculateRangeProfile(player.__xfpg, stability.volatility_input, stability.fragility_input);
-  const replacement = baselines[player.position].replacement_points;
+  const replacement = replacementPoints[player.position];
 
   return serviceSuccess({
     player: {
@@ -44,7 +44,12 @@ export const scoreWeeklyPlayerService = (
       confidence_band: stability.confidence_band,
       volatility_tag: range.volatility_tag,
       fragility_tag: range.fragility_tag,
-      role_notes: stability.role_notes,
+      role_notes: [
+        ...stability.role_notes,
+        request.comparison_pool?.length
+          ? `Replacement derived from comparison pool (${request.comparison_pool.length} players).`
+          : 'Replacement derived from league-default replacement table.',
+      ],
     },
   });
 };

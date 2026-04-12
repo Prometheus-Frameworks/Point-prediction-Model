@@ -4,6 +4,7 @@ export type {
   LeagueContextInput,
   PlayerOpportunityInput,
   ReplacementBaseline,
+  ReplacementPointsOverride,
   RosScoringRequest,
   RosScoringResponse,
   ScoredPlayerOutput,
@@ -18,6 +19,7 @@ export { calculateQbXfpg } from '../calculators/xfpg/calculateQbXfpg.js';
 export { calculateRbXfpg } from '../calculators/xfpg/calculateRbXfpg.js';
 export { calculatePassCatcherXfpg } from '../calculators/xfpg/calculatePassCatcherXfpg.js';
 export { calculateReplacementBaselines } from '../calculators/replacement/calculateReplacementBaselines.js';
+export { buildDefaultReplacementPoints } from '../calculators/replacement/buildDefaultReplacementPoints.js';
 export { calculateVorp } from '../calculators/vorp/calculateVorp.js';
 export { calculateRangeProfile } from '../calculators/range/calculateRangeProfile.js';
 export { calculateStabilityScore } from '../calculators/range/calculateStabilityScore.js';
