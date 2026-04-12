@@ -10,7 +10,8 @@ export const calculateQbXfpg = (player: PlayerOpportunityInput): number => {
   const designedRushAttempts = player.designed_rush_attempts_pg ?? 0;
   const scrambleRushAttempts = player.scramble_rush_attempts_pg ?? 0;
   const fallbackRushAttempts = player.rush_attempts_pg ?? player.carries_pg ?? 0;
-  const rushAttempts = designedRushAttempts + scrambleRushAttempts || fallbackRushAttempts;
+  const hasSplitRushInputs = player.designed_rush_attempts_pg !== undefined || player.scramble_rush_attempts_pg !== undefined;
+  const rushAttempts = hasSplitRushInputs ? designedRushAttempts + scrambleRushAttempts : fallbackRushAttempts;
 
   const rushYards = rushAttempts * (player.rush_yards_per_attempt ?? player.yards_per_carry ?? 0);
   const designedRateBoost = clamp(designedRushAttempts * 0.004, 0, 0.05);

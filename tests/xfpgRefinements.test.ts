@@ -41,6 +41,17 @@ describe('xfpg refinements', () => {
     expect(highValueEarner).toBeGreaterThan(shallowCompiler);
   });
 
+  it('does not double-count route suppression when routes_pg is already provided', () => {
+    const withRouteShare = calculatePassCatcherXfpg({
+      ...baseWr,
+      route_participation: 0.7,
+    });
+
+    const withoutRouteShare = calculatePassCatcherXfpg(baseWr);
+
+    expect(Math.abs(withRouteShare - withoutRouteShare)).toBeLessThan(1.5);
+  });
+
   it('distinguishes receiving-insulated RBs from touchdown-dependent grinders', () => {
     const tdGrinder = calculateRbXfpg({
       player_id: 'rb-grinder',
@@ -117,6 +128,42 @@ describe('xfpg refinements', () => {
     expect(rushingQb).toBeGreaterThan(pocketQb);
   });
 
+  it('honors explicit zero split rushing attempts instead of falling back to legacy rush totals', () => {
+    const splitZeros = calculateQbXfpg({
+      player_id: 'qb-zero-splits',
+      player_name: 'Zero Splits QB',
+      team: 'CCC',
+      position: 'QB',
+      games_sampled: 10,
+      pass_attempts_pg: 35,
+      pass_yards_per_attempt: 7.3,
+      pass_td_rate: 0.055,
+      interception_rate: 0.024,
+      designed_rush_attempts_pg: 0,
+      scramble_rush_attempts_pg: 0,
+      rush_attempts_pg: 5,
+      rush_yards_per_attempt: 5,
+      rush_td_rate: 0.04,
+    });
+
+    const legacyRushOnly = calculateQbXfpg({
+      player_id: 'qb-legacy-rush',
+      player_name: 'Legacy Rush QB',
+      team: 'CCC',
+      position: 'QB',
+      games_sampled: 10,
+      pass_attempts_pg: 35,
+      pass_yards_per_attempt: 7.3,
+      pass_td_rate: 0.055,
+      interception_rate: 0.024,
+      rush_attempts_pg: 5,
+      rush_yards_per_attempt: 5,
+      rush_td_rate: 0.04,
+    });
+
+    expect(splitZeros).toBeLessThan(legacyRushOnly);
+  });
+
   it('keeps backward-compatible behavior with lean legacy-style inputs', () => {
     const leanWr = calculatePassCatcherXfpg({
       ...baseWr,
@@ -173,5 +220,39 @@ describe('xfpg refinements', () => {
 
     expect(wrHeavy.WR).toBeLessThan(rbHeavy.WR);
     expect(rbHeavy.RB).toBeLessThan(wrHeavy.RB);
+  });
+
+  it('normalizes partial flex allocation inputs before applying demand', () => {
+    const partial = buildDefaultReplacementPoints({
+      teams: 12,
+      starters: { QB: 1, RB: 2, WR: 3, TE: 1, FLEX: 1 },
+      flex_allocation: { WR: 1 },
+    });
+
+    const explicitEquivalent = buildDefaultReplacementPoints({
+      teams: 12,
+      starters: { QB: 1, RB: 2, WR: 3, TE: 1, FLEX: 1 },
+      flex_allocation: { WR: 0.6667, RB: 0.2333, TE: 0.1 },
+    });
+
+    expect(partial.WR).toBe(explicitEquivalent.WR);
+    expect(partial.RB).toBe(explicitEquivalent.RB);
+    expect(partial.TE).toBe(explicitEquivalent.TE);
+  });
+
+  it('applies zero-valued opportunity shares as explicit penalties, not missing fields', () => {
+    const zeroShares = calculatePassCatcherXfpg({
+      ...baseWr,
+      first_read_target_share: 0,
+      air_yards_per_target: 0,
+      red_zone_target_share: 0,
+      end_zone_targets_pg: 0,
+    });
+
+    const undefinedShares = calculatePassCatcherXfpg({
+      ...baseWr,
+    });
+
+    expect(zeroShares).toBeLessThan(undefinedShares);
   });
 });

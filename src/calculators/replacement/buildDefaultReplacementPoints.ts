@@ -8,17 +8,23 @@ const base12TeamReplacement: Record<ScoringPosition, number> = {
   TE: 7,
 };
 
-const getFlexShare = (leagueContext: LeagueContextInput, position: 'RB' | 'WR' | 'TE'): number => {
-  const explicit = leagueContext.flex_allocation?.[position];
-  if (explicit !== undefined) {
-    return clamp(explicit, 0, 1);
+const normalizeFlexAllocation = (leagueContext: LeagueContextInput): Record<'RB' | 'WR' | 'TE', number> => {
+  const configured = leagueContext.flex_allocation;
+
+  const rb = clamp(configured?.RB ?? 0.35, 0, 1);
+  const wr = clamp(configured?.WR ?? 0.5, 0, 1);
+  const te = clamp(configured?.TE ?? 0.15, 0, 1);
+  const total = rb + wr + te;
+
+  if (total <= 0) {
+    return { RB: 0.35, WR: 0.5, TE: 0.15 };
   }
 
-  if (position === 'TE') {
-    return 0.1;
-  }
-
-  return 0.45;
+  return {
+    RB: rb / total,
+    WR: wr / total,
+    TE: te / total,
+  };
 };
 
 export const buildDefaultReplacementPoints = (
@@ -28,12 +34,13 @@ export const buildDefaultReplacementPoints = (
   const teamDelta = (leagueContext.teams - 12) * 0.35;
   const starters = leagueContext.starters;
   const flexSlots = starters.FLEX ?? 0;
+  const flexAllocation = normalizeFlexAllocation(leagueContext);
 
   const starterDemand = {
     QB: leagueContext.teams * starters.QB,
-    RB: leagueContext.teams * (starters.RB + flexSlots * getFlexShare(leagueContext, 'RB')),
-    WR: leagueContext.teams * (starters.WR + flexSlots * getFlexShare(leagueContext, 'WR')),
-    TE: leagueContext.teams * (starters.TE + flexSlots * getFlexShare(leagueContext, 'TE')),
+    RB: leagueContext.teams * (starters.RB + flexSlots * flexAllocation.RB),
+    WR: leagueContext.teams * (starters.WR + flexSlots * flexAllocation.WR),
+    TE: leagueContext.teams * (starters.TE + flexSlots * flexAllocation.TE),
   };
 
   const baselineDemand = {
