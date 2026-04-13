@@ -23,27 +23,36 @@ export function PlayerSpotlightCard({ player }: { player?: DecisionBoardPlayer }
         </div>
         <ActionTierPill tier={player.actionTier} />
       </div>
-      <div className="kpi-grid">
+      <div className="spotlight-answer-row">
         <div>
-          <span className="kpi-label">Top-line score</span>
-          <strong>{formatPoints(player.fusedProjection)}</strong>
+          <span className="kpi-label">TIBER projection</span>
+          <strong className="spotlight-answer-score">{formatPoints(player.fusedProjection)}</strong>
+          <p className={`spotlight-answer-delta ${player.scenarioDelta >= 0 ? 'accent-positive' : 'accent-negative'}`}>
+            {formatSigned(player.scenarioDelta)} vs baseline
+          </p>
         </div>
-        <div>
-          <span className="kpi-label">Scenario delta</span>
-          <strong>{formatSigned(player.scenarioDelta)}</strong>
-        </div>
-        <div>
-          <span className="kpi-label">Confidence</span>
-          <strong>{getTrustLabel(player.trustworthinessScore)}</strong>
-        </div>
-        <div>
-          <span className="kpi-label">Edge score</span>
-          <strong>{player.marketEdge.trustAdjustedScore}</strong>
+        <div className="spotlight-row">
+          <EdgeBadge marketEdge={player.marketEdge} />
+          <span className={`direction direction--${player.direction.toLowerCase()}`}>{player.direction}</span>
         </div>
       </div>
-      <div className="spotlight-row">
-        <EdgeBadge marketEdge={player.marketEdge} />
-        <span className={`direction direction--${player.direction.toLowerCase()}`}>{player.direction}</span>
+      <div className="kpi-grid">
+        <div>
+          <span className="kpi-label">80% range</span>
+          <strong>{player.intervals.lower80.toFixed(1)}–{player.intervals.upper80.toFixed(1)} pts</strong>
+        </div>
+        <div>
+          <span className="kpi-label">90% range</span>
+          <strong>{player.intervals.lower90.toFixed(1)}–{player.intervals.upper90.toFixed(1)} pts</strong>
+        </div>
+        <div>
+          <span className="kpi-label">Trust / confidence</span>
+          <strong>{getTrustLabel(player.trustworthinessScore)} ({player.trustworthinessScore})</strong>
+        </div>
+        <div>
+          <span className="kpi-label">Edge / actionability</span>
+          <strong>{player.marketEdge.trustAdjustedScore} / {player.actionabilityScore}</strong>
+        </div>
       </div>
       <ProjectionIntervalBar intervals={player.intervals} projection={player.fusedProjection} />
     </section>

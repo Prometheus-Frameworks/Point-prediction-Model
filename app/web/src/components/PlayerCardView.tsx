@@ -19,6 +19,10 @@ export function PlayerCardView({ players, selectedPlayer, onSelectPlayer }: Play
           ))}
         </select>
       </label>
+      <section className="board-summary">
+        <span>Player Card</span>
+        <span>Answer first, then range, signals, and diagnostics.</span>
+      </section>
       <PlayerSpotlightCard player={selectedPlayer} />
       <PlayerReasoningSections player={selectedPlayer} />
     </section>

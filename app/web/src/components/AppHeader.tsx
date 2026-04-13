@@ -10,9 +10,9 @@ export function AppHeader({ sourceLabel, isLoading, errorMessage }: AppHeaderPro
   return (
     <header className="app-header">
       <div>
-        <p className="eyebrow">Point Prediction Model</p>
-        <h1>Fantasy Scoring Workbench</h1>
-        <p className="hero-copy">Projection-first scoring views for rankings, player-level context, and side-by-side decisions.</p>
+        <p className="eyebrow">Weekly scoring intelligence</p>
+        <h1>TIBER Fantasy Points</h1>
+        <p className="hero-copy">Projection-driven rankings, player cards, and head-to-head decisions in one scoring workspace.</p>
       </div>
       <div className="app-header__meta">
         <span className="muted">API: {appConfig.apiBaseUrl}</span>

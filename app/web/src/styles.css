@@ -91,6 +91,9 @@ select {
 .kpi-grid, .detail-list--two-col { grid-template-columns: repeat(2,minmax(0,1fr)); }
 .bullet-list { margin: 10px 0 0; padding-left: 18px; }
 .spotlight-row { margin-top: 12px; display:flex; gap: 8px; align-items:center; }
+.spotlight-answer-row { display:grid; grid-template-columns: 1fr auto; gap: 12px; align-items:end; }
+.spotlight-answer-score { display:block; font-size: 2rem; line-height: 1.1; }
+.spotlight-answer-delta { margin: 2px 0 0; font-weight: 600; }
 
 .interval-bar { position: relative; padding: 14px 0 0; }
 .interval-bar__track { height: 8px; border-radius: 999px; background: rgba(255,255,255,.08); }
@@ -105,6 +108,13 @@ select {
 .compare-picker-row, .compare-grid { display:grid; gap: 12px; }
 .compare-picker-row { grid-template-columns: repeat(2,minmax(0,1fr)); }
 .compare-grid { grid-template-columns: repeat(2,minmax(0,1fr)); }
+.compare-summary-card { display:grid; gap: 12px; }
+.compare-summary-card__headline h3 { margin: 0; }
+.compare-summary-card__headline p { margin: 4px 0 0; }
+.compare-verdict-row { display:flex; justify-content:space-between; gap: 10px; align-items:center; flex-wrap: wrap; }
+.compare-winner-pill { border-radius: 999px; padding: 7px 12px; font-weight: 700; background: rgba(94,242,169,.16); color: var(--green); }
+.compare-delta-grid { display:grid; grid-template-columns: repeat(4,minmax(0,1fr)); gap: 12px; }
+.compare-delta-grid strong { display: block; margin-top: 4px; }
 
 .edge-badge,.tier-pill,.tag,.direction { display:inline-flex; align-items:center; gap:8px; border-radius:999px; padding:6px 10px; font-size:.8rem; font-weight:700; width: fit-content; }
 .edge-badge--above_market,.direction--up,.tier-pill--aggressive { background: rgba(94,242,169,.14); color: var(--green); }
@@ -124,7 +134,7 @@ select {
   .app-shell { padding: 14px; }
   .app-header { display:grid; }
   .app-header__meta { justify-items: start; }
-  .hero-stats, .overview-grid, .compare-picker-row, .kpi-grid, .detail-list--two-col { grid-template-columns: 1fr; }
+  .hero-stats, .overview-grid, .compare-picker-row, .kpi-grid, .detail-list--two-col, .compare-delta-grid, .spotlight-answer-row { grid-template-columns: 1fr; }
   .decision-board-table { display: none; }
   .rankings-mobile-list { display:grid; gap: 10px; padding: 12px; }
   .board-summary { display:grid; }

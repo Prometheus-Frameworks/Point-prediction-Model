@@ -13,8 +13,8 @@ export function RosView({ players, selectedPlayerId, onSelect }: RosViewProps) {
   return (
     <section className="view-stack">
       <section className="board-summary">
-        <span>ROS Priority Board</span>
-        <span>Sorted by trustworthiness + actionability.</span>
+        <span>TIBER ROS Priority Board</span>
+        <span>Sorted by trustworthiness and actionability scores.</span>
       </section>
       <RankingsTable players={rosPlayers} selectedPlayerId={selectedPlayerId} onSelect={onSelect} />
     </section>

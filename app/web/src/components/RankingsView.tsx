@@ -26,7 +26,7 @@ export function RankingsView({ players, selectedPlayer, filters, sortKey, onSele
 
         <section className="board-summary">
           <span>{players.length} players visible</span>
-          <span>Tap any player to open full scoring context.</span>
+          <span>Select a player to open the full TIBER scoring card.</span>
         </section>
 
         <RankingsTable players={players} selectedPlayerId={selectedPlayer?.id} onSelect={onSelect} />
