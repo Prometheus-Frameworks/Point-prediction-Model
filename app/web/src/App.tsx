@@ -45,11 +45,11 @@ function App() {
 
   const body = useMemo(() => {
     if (isLoading) {
-      return <section className="status-panel"><h2>Loading scoring data…</h2><p>Fetching player rows from the decision-board API.</p></section>;
+      return <section className="status-panel"><h2>Loading TIBER Fantasy Points…</h2><p>Fetching the latest scoring board from the decision API.</p></section>;
     }
 
     if (isEmpty) {
-      return <section className="status-panel"><h2>No players returned</h2><p>The API request succeeded but included no rows.</p></section>;
+      return <section className="status-panel"><h2>No players returned</h2><p>The data source responded successfully but did not include player rows.</p></section>;
     }
 
     switch (activeView) {

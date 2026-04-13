@@ -1,5 +1,6 @@
 import { useMemo, useState } from 'react';
 import type { DecisionBoardPlayer } from '../types';
+import { CompareSummaryCard } from './CompareSummaryCard';
 import { PlayerReasoningSections } from './PlayerReasoningSections';
 import { PlayerSpotlightCard } from './PlayerSpotlightCard';
 
@@ -26,6 +27,8 @@ export function CompareView({ players }: { players: DecisionBoardPlayer[] }) {
           </select>
         </label>
       </div>
+
+      <CompareSummaryCard left={left} right={right} />
 
       <div className="compare-grid">
         <div>

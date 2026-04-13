@@ -10,7 +10,7 @@ export function PlayerReasoningSections({ player }: { player?: DecisionBoardPlay
   return (
     <>
       <section className="detail-card">
-        <h3>Why this projection</h3>
+        <h3>Why this call</h3>
         <div className="detail-list detail-list--two-col">
           <div>
             <span>Baseline</span>
@@ -21,7 +21,7 @@ export function PlayerReasoningSections({ player }: { player?: DecisionBoardPlay
             <strong>{formatSigned(player.marketEdge.rawDelta)}</strong>
           </div>
         </div>
-        {player.eventSummary ? <p>{player.eventSummary}</p> : <p className="muted">No major event note for this profile.</p>}
+        {player.eventSummary ? <p>{player.eventSummary}</p> : <p className="muted">No major event signal is currently active.</p>}
         <ul className="bullet-list">
           {player.diagnostics.decisionReasons.map((reason) => (
             <li key={reason}>{reason}</li>
@@ -30,7 +30,7 @@ export function PlayerReasoningSections({ player }: { player?: DecisionBoardPlay
       </section>
 
       <section className="detail-card">
-        <h3>Model reasoning</h3>
+        <h3>Supporting signals</h3>
         <ul className="bullet-list">
           {player.marketEdge.explanation.map((reason) => (
             <li key={reason}>{reason}</li>
@@ -44,7 +44,7 @@ export function PlayerReasoningSections({ player }: { player?: DecisionBoardPlay
       </section>
 
       <section className="detail-card">
-        <h3>Diagnostics & flags</h3>
+        <h3>Diagnostics</h3>
         <div className="detail-list detail-list--two-col">
           <div>
             <span>Regression up/down</span>

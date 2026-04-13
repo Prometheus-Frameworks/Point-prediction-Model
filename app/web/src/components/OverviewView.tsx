@@ -21,19 +21,19 @@ export function OverviewView({ totalPlayers, strongEdges, eventDriven, avgProjec
       <div className="overview-grid">
         <button type="button" className="action-card" onClick={() => onJump('rankings')}>
           <h3>Rankings</h3>
-          <p>Scan player rankings with confidence range, edge, and action tier.</p>
+          <p>Sort the full board by projection, trust, edge, or actionability.</p>
         </button>
         <button type="button" className="action-card" onClick={() => onJump('player-card')}>
           <h3>Player Card</h3>
-          <p>Open a focused player profile with outputs first and reasoning below.</p>
+          <p>Open the flagship scoring page with answer, range, and decision signals.</p>
         </button>
         <button type="button" className="action-card" onClick={() => onJump('compare')}>
           <h3>Compare</h3>
-          <p>Run side-by-side score comparisons between any two players.</p>
+          <p>Get a direct winner call with projection, trust, and edge deltas.</p>
         </button>
         <button type="button" className="action-card" onClick={() => onJump('ros')}>
           <h3>ROS</h3>
-          <p>Prioritize rest-of-season profiles by trust and actionability.</p>
+          <p>Prioritize rest-of-season profiles by reliability and decision strength.</p>
         </button>
       </div>
     </section>
