@@ -57,3 +57,5 @@ export interface DecisionBoardFilters {
   eventDrivenOnly: boolean;
   strongEdgeOnly: boolean;
 }
+
+export type AppView = 'overview' | 'player-card' | 'rankings' | 'compare' | 'ros';
