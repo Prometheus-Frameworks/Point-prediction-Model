@@ -39,12 +39,13 @@ Reason: build/tests are green (118 tests across 29 files), API + CLI + service l
 - `npm run build` → `tsc --noEmit` (passed)
 - `npm test` → `vitest run` (passed; 118 tests)
 
-### Documented but not verified
-- `npm install`
-- `npm run dev:api`
-- `npm run start:api`
 - `npm run start`
 - `npm run dev`
+- `npm run start:api`
+- `npm run dev:api`
+
+### Setup
+- `npm install`
 
 ### Missing but probably needed
 - Explicit lint/format scripts (`lint`, `format`, `typecheck` alias)
