@@ -29,6 +29,11 @@ Scenario-first infrastructure is preserved but intentionally demoted from the pr
 
 See `docs/migration-scoring-kernel.md` and `src/legacy/README.md`.
 
+## Architecture / governance docs
+- [Ownership boundaries and contract map](docs/ownership-boundaries.md)
+- `docs/migration-scoring-kernel.md`
+- `src/legacy/README.md`
+
 ## API endpoints (primary)
 - `POST /api/scoring/weekly/player`
 - `POST /api/scoring/weekly/batch`
