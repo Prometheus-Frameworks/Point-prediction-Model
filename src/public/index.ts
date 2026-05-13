@@ -53,6 +53,33 @@ export {
 } from '../contracts/tiberDataProjectionInput.js';
 export { toWeeklyScoringRequest } from '../adapters/tiberData/toWeeklyScoringRequest.js';
 
+export type {
+  ProjectionArtifactRef,
+  ProjectionArtifactType,
+  ProjectionInputCoverageArtifact,
+  ProjectionModelRef,
+  ProjectionRowInputRefs,
+  ProjectionRunManifestArtifact,
+  ProjectionRunOutputRef,
+  ReplacementBaselineArtifactBaselines,
+  ReplacementBaselineArtifactPositionBaseline,
+  ReplacementBaselinesArtifact,
+  RosPlayerProjectionArtifactRow,
+  WeeklyPlayerProjectionArtifactRow,
+} from '../contracts/projectionArtifacts.js';
+export {
+  PROJECTION_INPUT_COVERAGE_ARTIFACT_VERSION,
+  PROJECTION_RUN_MANIFEST_ARTIFACT_VERSION,
+  REPLACEMENT_BASELINES_ARTIFACT_VERSION,
+  ROS_PLAYER_PROJECTION_ARTIFACT_VERSION,
+  WEEKLY_PLAYER_PROJECTION_ARTIFACT_VERSION,
+  validateProjectionInputCoverageArtifact,
+  validateProjectionRunManifest,
+  validateReplacementBaselinesArtifact,
+  validateRosPlayerProjectionArtifactRow,
+  validateWeeklyPlayerProjectionArtifactRow,
+} from '../contracts/projectionArtifacts.js';
+
 export { calculateExpectedPoints } from '../calculators/xfpg/calculateExpectedPoints.js';
 export { calculateQbXfpg } from '../calculators/xfpg/calculateQbXfpg.js';
 export { calculateRbXfpg } from '../calculators/xfpg/calculateRbXfpg.js';
