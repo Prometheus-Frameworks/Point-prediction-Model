@@ -105,6 +105,11 @@ describe('projection rehearsal flow', () => {
     expect(coverage.missing_fields).toEqual(
       expect.arrayContaining([
         expect.objectContaining({ field: 'receiving_td_rate', severity: 'optional', player_id: 'fixture-rehearsal-wr-1' }),
+        expect.objectContaining({ field: 'route_participation', severity: 'optional', player_id: 'fixture-rehearsal-rb-1' }),
+      ]),
+    );
+    expect(coverage.missing_fields).not.toEqual(
+      expect.arrayContaining([
         expect.objectContaining({ field: 'pass_attempts_pg', severity: 'optional', player_id: 'fixture-rehearsal-rb-1' }),
       ]),
     );
