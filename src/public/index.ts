@@ -34,6 +34,25 @@ export type {
   TiberWeeklyRankingsView,
 } from '../contracts/tiberScoring.js';
 
+export type {
+  TiberDataIdentityRef,
+  TiberDataPlayerOpportunityProjection,
+  TiberDataProjectionCoverageReport,
+  TiberDataProjectionFieldCoverage,
+  TiberDataProjectionFieldSeverity,
+  TiberDataProjectionInputBundle,
+  TiberDataProjectionMissingField,
+  TiberDataSourceDatasetRef,
+  TiberDataWeeklyScoringAdapterOutput,
+} from '../contracts/tiberDataProjectionInput.js';
+export {
+  TIBER_DATA_PROJECTION_INPUT_CONTRACT_VERSION,
+  tiberDataOptionalPlayerOpportunityFields,
+  tiberDataRequiredPlayerOpportunityFields,
+  tiberDataScoringPositions,
+} from '../contracts/tiberDataProjectionInput.js';
+export { toWeeklyScoringRequest } from '../adapters/tiberData/toWeeklyScoringRequest.js';
+
 export { calculateExpectedPoints } from '../calculators/xfpg/calculateExpectedPoints.js';
 export { calculateQbXfpg } from '../calculators/xfpg/calculateQbXfpg.js';
 export { calculateRbXfpg } from '../calculators/xfpg/calculateRbXfpg.js';
