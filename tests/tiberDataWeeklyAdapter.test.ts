@@ -85,6 +85,65 @@ const clearlyLabeledCompleteFixture: TiberDataProjectionInputBundle = {
   ],
 };
 
+const positionAwareOptionalFieldFixture: TiberDataProjectionInputBundle = {
+  ...clearlyLabeledCompleteFixture,
+  player_opportunities: [
+    {
+      player_id: 'position-qb-1',
+      player_name: 'Position Quarterback',
+      team: 'BUF',
+      position: 'QB',
+      games_sampled: 17,
+      pass_attempts_pg: 34,
+    },
+    {
+      player_id: 'position-rb-1',
+      player_name: 'Position Running Back',
+      team: 'DET',
+      position: 'RB',
+      games_sampled: 15,
+      carries_pg: 16,
+    },
+    {
+      player_id: 'position-wr-1',
+      player_name: 'Position Wide Receiver',
+      team: 'MIN',
+      position: 'WR',
+      games_sampled: 14,
+      routes_pg: 35,
+    },
+  ],
+  comparison_pool: undefined,
+  replacement_points_override: undefined,
+  adapter_warnings: undefined,
+  missing_fields: [
+    {
+      field: 'routes_pg',
+      severity: 'optional',
+      reason: 'Fixture declares a structurally irrelevant receiver field for a QB.',
+      player_id: 'position-qb-1',
+    },
+    {
+      field: 'pass_attempts_pg',
+      severity: 'optional',
+      reason: 'Fixture declares a structurally irrelevant passing field for a WR.',
+      player_id: 'position-wr-1',
+    },
+    {
+      field: 'pass_td_rate',
+      severity: 'optional',
+      reason: 'Fixture declares a structurally irrelevant passing field for an RB.',
+      player_id: 'position-rb-1',
+    },
+    {
+      field: 'receiving_td_rate',
+      severity: 'optional',
+      reason: 'Fixture declares a relevant receiver field for a WR.',
+      player_id: 'position-wr-1',
+    },
+  ],
+};
+
 const clearlyLabeledOptionalGapsFixture: TiberDataProjectionInputBundle = {
   input_contract_version: TIBER_DATA_PROJECTION_INPUT_CONTRACT_VERSION,
   tiber_data_schema_version: 'fixture-tiber-data-schema-v1',
@@ -173,6 +232,38 @@ describe('TIBER-Data weekly scoring adapter', () => {
     );
     expect(result.data.report.coverage.optional_fields_missing).toBeGreaterThan(0);
     expect(result.data.report.coverage.required_fields_missing).toBe(0);
+  });
+
+
+  it('reports only position-relevant missing optional fields for adapter coverage', () => {
+    const result = toWeeklyScoringRequest(positionAwareOptionalFieldFixture);
+
+    expect(result.ok).toBe(true);
+    if (!result.ok) return;
+
+    const missingByPlayer = new Map<string, string[]>(
+      positionAwareOptionalFieldFixture.player_opportunities.map((player) => [
+        player.player_id,
+        result.data.report.missing_fields
+          .filter((field) => field.player_id === player.player_id && field.severity === 'optional')
+          .map((field) => field.field),
+      ]),
+    );
+
+    expect(missingByPlayer.get('position-qb-1')).not.toEqual(expect.arrayContaining(['routes_pg', 'receiving_td_rate']));
+    expect(missingByPlayer.get('position-wr-1')).not.toContain('pass_attempts_pg');
+    expect(missingByPlayer.get('position-rb-1')).not.toEqual(expect.arrayContaining(['pass_attempts_pg', 'pass_td_rate']));
+    expect(missingByPlayer.get('position-wr-1')).toContain('receiving_td_rate');
+    expect(missingByPlayer.get('position-qb-1')).toContain('pass_td_rate');
+    expect(result.data.report.coverage.optional_fields_missing).toBe(41);
+    expect(result.data.report.warnings).toEqual(
+      expect.arrayContaining([
+        expect.objectContaining({
+          code: 'TIBER_DATA_OPTIONAL_FIELDS_MISSING',
+          details: { missing_optional_field_count: 41 },
+        }),
+      ]),
+    );
   });
 
   it('fails validation when a clearly labeled fixture is missing required scoring fields', () => {

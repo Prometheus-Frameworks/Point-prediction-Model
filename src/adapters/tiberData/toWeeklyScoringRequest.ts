@@ -8,6 +8,10 @@ import {
   type TiberDataProjectionMissingField,
   type TiberDataWeeklyScoringAdapterOutput,
 } from '../../contracts/tiberDataProjectionInput.js';
+import {
+  getTiberDataOptionalFieldsForPosition,
+  isTiberDataOptionalFieldRelevantForPosition,
+} from '../../contracts/positionFieldExpectations.js';
 import { serviceFailure, serviceSuccess, type ServiceError, type ServiceResult, type ServiceWarning } from '../../services/result.js';
 
 type PlayerField = keyof PlayerOpportunityInput;
@@ -142,6 +146,23 @@ const validatePlayers = (players: unknown, path: 'player_opportunities' | 'compa
 const knownMissingKey = (missingField: TiberDataProjectionMissingField): string =>
   `${missingField.player_id ?? '*'}:${missingField.field}:${missingField.severity}`;
 
+const filterPositionRelevantMissingFields = (
+  players: PlayerOpportunityInput[],
+  missingFields: TiberDataProjectionMissingField[],
+): TiberDataProjectionMissingField[] => {
+  const positionByPlayerId = new Map(players.map((player) => [player.player_id, player.position]));
+
+  return missingFields.filter((missingField) => {
+    if (missingField.severity === 'required') return true;
+    if (missingField.player_id === undefined) return true;
+
+    const position = positionByPlayerId.get(missingField.player_id);
+    if (position === undefined) return true;
+
+    return isTiberDataOptionalFieldRelevantForPosition(position, missingField.field);
+  });
+};
+
 const buildImplicitMissingOptionalFields = (
   players: PlayerOpportunityInput[],
   existingMissingFields: TiberDataProjectionMissingField[],
@@ -150,7 +171,7 @@ const buildImplicitMissingOptionalFields = (
   const missingFields: TiberDataProjectionMissingField[] = [];
 
   for (const player of players) {
-    for (const field of tiberDataOptionalPlayerOpportunityFields) {
+    for (const field of getTiberDataOptionalFieldsForPosition(player.position)) {
       if (hasOwn(player, field)) continue;
 
       const missingField: TiberDataProjectionMissingField = {
@@ -208,7 +229,7 @@ const buildWarnings = (
 };
 
 const buildReport = (bundle: TiberDataProjectionInputBundle, request: WeeklyScoringRequest): TiberDataProjectionCoverageReport => {
-  const suppliedMissingFields = bundle.missing_fields ?? [];
+  const suppliedMissingFields = filterPositionRelevantMissingFields(request.players, bundle.missing_fields ?? []);
   const implicitMissingFields = buildImplicitMissingOptionalFields(request.players, suppliedMissingFields);
   const missingFields = [...suppliedMissingFields, ...implicitMissingFields];
   const mappedFields = collectMappedFields(request.players);
