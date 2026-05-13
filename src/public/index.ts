@@ -74,6 +74,10 @@ export type {
 } from '../artifacts/writeProjectionArtifacts.js';
 export { writeProjectionArtifacts } from '../artifacts/writeProjectionArtifacts.js';
 
+export type { ProjectionRehearsalResult, RunProjectionRehearsalInput } from '../rehearsal/runProjectionRehearsal.js';
+export { runProjectionRehearsal } from '../rehearsal/runProjectionRehearsal.js';
+export { fixtureLeagueContext, fixtureTiberDataProjectionBundle } from '../rehearsal/fixtures/projectionRehearsalFixtures.js';
+
 export {
   PROJECTION_INPUT_COVERAGE_ARTIFACT_VERSION,
   PROJECTION_RUN_MANIFEST_ARTIFACT_VERSION,
