@@ -140,6 +140,18 @@ const validatePlayers = (players: unknown, path: 'player_opportunities' | 'compa
         });
       }
     }
+
+    for (const field of tiberDataOptionalPlayerOpportunityFields) {
+      if (!hasOwn(player, field)) continue;
+
+      if (!isNumber(player[field])) {
+        errors.push({
+          code: 'TIBER_DATA_OPTIONAL_FIELD_INVALID',
+          message: `${path}[${index}].${field} must be a finite number when supplied.`,
+          details: { player: playerLabel(player, index), field, path },
+        });
+      }
+    }
   });
 };
 

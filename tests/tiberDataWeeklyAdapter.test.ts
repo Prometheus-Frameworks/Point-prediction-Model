@@ -234,6 +234,142 @@ describe('TIBER-Data weekly scoring adapter', () => {
     expect(result.data.report.coverage.required_fields_missing).toBe(0);
   });
 
+  it('passes valid optional numeric fields through unchanged', () => {
+    const result = toWeeklyScoringRequest(clearlyLabeledCompleteFixture);
+
+    expect(result.ok).toBe(true);
+    if (!result.ok) return;
+
+    expect(result.data.request.players[0]).toMatchObject({
+      season: 2026,
+      week: 1,
+      pass_attempts_pg: 34,
+      pass_td_rate: 0.058,
+      injury_risk: 0.18,
+    });
+    expect(result.data.request.players[1]).toMatchObject({
+      route_participation: 0.89,
+      targets_per_route: 0.28,
+      catch_rate: 0.67,
+      receiving_td_rate: 0.065,
+    });
+  });
+
+  it.each([
+    ['null', null],
+    ['string', '0.67'],
+    ['array', [0.67]],
+    ['object', { value: 0.67 }],
+  ])('fails validation when an optional scoring field is %s', (_label, invalidValue) => {
+    const invalidFixture = {
+      ...clearlyLabeledCompleteFixture,
+      player_opportunities: [
+        {
+          ...clearlyLabeledCompleteFixture.player_opportunities[1],
+          catch_rate: invalidValue,
+        },
+      ],
+    } as unknown as TiberDataProjectionInputBundle;
+
+    const result = toWeeklyScoringRequest(invalidFixture);
+
+    expect(result.ok).toBe(false);
+    if (result.ok) return;
+
+    expect(result.errors).toEqual(
+      expect.arrayContaining([
+        expect.objectContaining({
+          code: 'TIBER_DATA_OPTIONAL_FIELD_INVALID',
+          message: 'player_opportunities[0].catch_rate must be a finite number when supplied.',
+          details: { player: 'fixture-wr-1', field: 'catch_rate', path: 'player_opportunities' },
+        }),
+      ]),
+    );
+  });
+
+  it.each([
+    ['NaN', Number.NaN],
+    ['Infinity', Number.POSITIVE_INFINITY],
+    ['negative Infinity', Number.NEGATIVE_INFINITY],
+  ])('fails validation when optional season context is %s', (_label, invalidValue) => {
+    const invalidFixture = {
+      ...clearlyLabeledCompleteFixture,
+      player_opportunities: [
+        {
+          ...clearlyLabeledCompleteFixture.player_opportunities[0],
+          season: invalidValue,
+        },
+      ],
+    } as TiberDataProjectionInputBundle;
+
+    const result = toWeeklyScoringRequest(invalidFixture);
+
+    expect(result.ok).toBe(false);
+    if (result.ok) return;
+
+    expect(result.errors).toEqual(
+      expect.arrayContaining([
+        expect.objectContaining({
+          code: 'TIBER_DATA_OPTIONAL_FIELD_INVALID',
+          message: 'player_opportunities[0].season must be a finite number when supplied.',
+          details: { player: 'fixture-qb-1', field: 'season', path: 'player_opportunities' },
+        }),
+      ]),
+    );
+  });
+
+  it('fails validation when optional week context is not numeric', () => {
+    const invalidFixture = {
+      ...clearlyLabeledCompleteFixture,
+      player_opportunities: [
+        {
+          ...clearlyLabeledCompleteFixture.player_opportunities[0],
+          week: '1',
+        },
+      ],
+    } as unknown as TiberDataProjectionInputBundle;
+
+    const result = toWeeklyScoringRequest(invalidFixture);
+
+    expect(result.ok).toBe(false);
+    if (result.ok) return;
+
+    expect(result.errors).toEqual(
+      expect.arrayContaining([
+        expect.objectContaining({
+          code: 'TIBER_DATA_OPTIONAL_FIELD_INVALID',
+          message: 'player_opportunities[0].week must be a finite number when supplied.',
+        }),
+      ]),
+    );
+  });
+
+  it('validates optional scoring fields on comparison pool rows', () => {
+    const invalidFixture = {
+      ...clearlyLabeledCompleteFixture,
+      comparison_pool: [
+        {
+          ...clearlyLabeledCompleteFixture.comparison_pool?.[0],
+          targets_pg: null,
+        },
+      ],
+    } as unknown as TiberDataProjectionInputBundle;
+
+    const result = toWeeklyScoringRequest(invalidFixture);
+
+    expect(result.ok).toBe(false);
+    if (result.ok) return;
+
+    expect(result.errors).toEqual(
+      expect.arrayContaining([
+        expect.objectContaining({
+          code: 'TIBER_DATA_OPTIONAL_FIELD_INVALID',
+          message: 'comparison_pool[0].targets_pg must be a finite number when supplied.',
+          details: { player: 'fixture-pool-rb-1', field: 'targets_pg', path: 'comparison_pool' },
+        }),
+      ]),
+    );
+  });
 
   it('reports only position-relevant missing optional fields for adapter coverage', () => {
     const result = toWeeklyScoringRequest(positionAwareOptionalFieldFixture);
