@@ -19,9 +19,9 @@ No scoring math, ingestion wiring, generated artifacts, or FORGE logic is change
 - The scoring contract has five required `PlayerOpportunityInput` identity/sample fields: `player_id`, `player_name`, `team`, `position`, and `games_sampled`.
 - All football-opportunity fields are optional in TypeScript, but many optional fields materially affect xFPG if present.
 - Missing optional numeric fields usually default to `0`, a fixed heuristic, or a derived fallback. This means omission can produce valid-looking but materially depressed projections.
-- The TIBER-Data adapter validates required player fields and top-level bundle/league fields, but it does not synthesize optional scoring values.
+- The TIBER-Data adapter validates required player fields, top-level bundle/league fields, and supplied optional player numeric fields, but it does not synthesize optional scoring values.
 - Several current fields are local model features or derived risk indices and should probably not be sourced directly from raw TIBER-Data: `role_stability`, `td_dependency`, `injury_risk`, `rush_td_opportunity`, and `receiving_role_strength`.
-- `null` handling is not explicitly validated for optional fields. Many `??` fallbacks treat `null` as missing, but checks such as `field !== undefined` treat `null` as present and may rely on JavaScript numeric coercion. The adapter should prefer omission for unavailable optional fields unless/until optional validation is tightened.
+- Supplied optional player fields must be finite numbers in the TIBER-Data adapter; unavailable optional fields should be omitted rather than supplied as `null`. Calculator-level null semantics remain inconsistent if callers bypass the adapter.
 
 ## Required `PlayerOpportunityInput` fields
 
@@ -105,12 +105,13 @@ The TIBER weekly adapter currently:
 1. Requires top-level provenance fields: `input_contract_version`, `tiber_data_schema_version`, `source_dataset_refs`, and `identity_ref`.
 2. Requires a non-empty `player_opportunities` array.
 3. Validates required player fields for both `player_opportunities` and `comparison_pool`.
-4. Rejects declared `missing_fields` entries with `severity: "required"`.
-5. Passes player opportunity rows through as the `WeeklyScoringRequest` without synthesizing optional values.
-6. Builds a coverage report with mapped required fields, mapped optional fields, declared missing fields, and implicit position-relevant optional missing fields.
-7. Filters optional missing-field reporting by position expectations from `positionFieldExpectations.ts`.
+4. Validates supplied optional player fields, including `week` and `season`, as finite numbers for both `player_opportunities` and `comparison_pool`.
+5. Rejects declared `missing_fields` entries with `severity: "required"`.
+6. Passes player opportunity rows through as the `WeeklyScoringRequest` without synthesizing optional values.
+7. Builds a coverage report with mapped required fields, mapped optional fields, declared missing fields, and implicit position-relevant optional missing fields.
+8. Filters optional missing-field reporting by position expectations from `positionFieldExpectations.ts`.
 
-Important limitation: optional player fields are not currently type-validated by the adapter. The scoring contract says optional fields are numbers, but runtime inputs with `null` or non-number values may not fail before scoring.
+Runtime guardrail: optional player fields with `null`, non-number, `NaN`, or infinite values now fail adapter validation before reaching scoring. Omitted optional fields remain allowed and are reported as missing when position-relevant.
 
 ## Gaps between current algorithm expectations and TIBER-Data semantics
 
@@ -122,7 +123,7 @@ Important limitation: optional player fields are not currently type-validated by
 6. **Duplicate rushing-volume semantics exist.** `carries_pg` and `rush_attempts_pg` can both drive rushing volume. TIBER mapping should define position-specific precedence and whether both should ever be supplied.
 7. **QB split rush inputs override total rush input when either split is present.** Supplying only one of `designed_rush_attempts_pg` or `scramble_rush_attempts_pg` causes QB rushing attempts to ignore `rush_attempts_pg`. TIBER adaptation should either provide both split fields or neither.
 8. **Missing optional volume often means zero points.** Absence of `pass_attempts_pg`, `targets_per_route`, `routes_pg`, `catch_rate`, `yards_per_target`, or rushing volume can collapse relevant scoring components to zero. The adapter truthfully reports missing optionals but does not prevent scoring.
-9. **Null semantics are inconsistent.** `??` treats null as missing, while `!== undefined` treats null as present. TIBER adapter output should omit unavailable optional fields rather than using `null`.
+9. **Null semantics are inconsistent outside the adapter.** `??` treats null as missing, while `!== undefined` treats null as present. TIBER adapter validation now rejects `null` optional fields, and TIBER adapter output should continue to omit unavailable optional fields rather than using `null`.
 10. **`week` and `season` are tracked as optional input fields but not used by current scoring math.** They remain useful context/provenance, but they do not affect xFPG, stability, range, or replacement today.
 
 ## Recommended pre-wiring stance
@@ -131,4 +132,4 @@ Important limitation: optional player fields are not currently type-validated by
 - Prefer direct TIBER fields for identity, team, position, schedule context, and primitive volume/efficiency stats.
 - Add an adaptation layer for rates, normalized shares, high-value usage metrics, and risk/stability indices.
 - Do not synthesize optional values silently in the TIBER adapter without adding explicit provenance/warnings.
-- Tighten optional runtime validation before accepting real TIBER bundles, especially to reject or normalize `null` and non-finite values consistently.
+- Keep optional runtime validation in place before accepting real TIBER bundles; reject `null`, non-number, and non-finite optional values instead of normalizing them.
