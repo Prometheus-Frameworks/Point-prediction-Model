@@ -67,6 +67,13 @@ export type {
   RosPlayerProjectionArtifactRow,
   WeeklyPlayerProjectionArtifactRow,
 } from '../contracts/projectionArtifacts.js';
+export type {
+  WriteProjectionArtifactsInput,
+  WriteProjectionArtifactsOutput,
+  WrittenProjectionArtifact,
+} from '../artifacts/writeProjectionArtifacts.js';
+export { writeProjectionArtifacts } from '../artifacts/writeProjectionArtifacts.js';
+
 export {
   PROJECTION_INPUT_COVERAGE_ARTIFACT_VERSION,
   PROJECTION_RUN_MANIFEST_ARTIFACT_VERSION,
