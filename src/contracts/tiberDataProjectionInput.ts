@@ -32,6 +32,7 @@ export interface TiberDataProjectionInputBundle {
   tiber_data_schema_version: string;
   source_dataset_refs: TiberDataSourceDatasetRef[];
   identity_ref: TiberDataIdentityRef;
+  projection_context?: Record<string, unknown>;
   player_opportunities: TiberDataPlayerOpportunityProjection[];
   league_context: LeagueContextInput;
   comparison_pool?: TiberDataPlayerOpportunityProjection[];
